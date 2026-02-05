@@ -1381,18 +1381,54 @@
                         <div class="setting-row">
                             <span class="setting-label">Active Provider</span>
                             <select class="setting-input" id="settingProvider">
-                                <option value="openai">OpenAI</option>
-                                <option value="claude">Claude</option>
+                                <optgroup label="Major LLMs">
+                                    <option value="openai">OpenAI (GPT-4o, o1)</option>
+                                    <option value="claude">Anthropic Claude</option>
+                                    <option value="gemini">Google Gemini</option>
+                                    <option value="deepseek">DeepSeek</option>
+                                    <option value="mistral">Mistral AI</option>
+                                    <option value="grok">xAI Grok</option>
+                                    <option value="cohere">Cohere</option>
+                                    <option value="ai21">AI21 Labs</option>
+                                </optgroup>
+                                <optgroup label="Fast Inference">
+                                    <option value="groq">Groq (Ultra-Fast)</option>
+                                    <option value="cerebras">Cerebras (Ultra-Fast)</option>
+                                    <option value="lepton">Lepton AI</option>
+                                    <option value="sambanova">SambaNova</option>
+                                    <option value="fireworks">Fireworks AI</option>
+                                    <option value="together">Together AI</option>
+                                    <option value="deepinfra">DeepInfra</option>
+                                    <option value="octoai">OctoAI</option>
+                                    <option value="novita">Novita AI</option>
+                                </optgroup>
+                                <optgroup label="Chinese LLMs">
+                                    <option value="glm">Zhipu GLM (ChatGLM)</option>
+                                    <option value="qwen">Alibaba Qwen</option>
+                                    <option value="baichuan">Baichuan AI</option>
+                                    <option value="moonshot">Moonshot (Kimi)</option>
+                                    <option value="yi">01.AI Yi</option>
+                                </optgroup>
+                                <optgroup label="Multi-Provider & Enterprise">
+                                    <option value="openrouter">OpenRouter (Multi)</option>
+                                    <option value="azure_openai">Azure OpenAI</option>
+                                    <option value="aws_bedrock">AWS Bedrock</option>
+                                    <option value="huggingface">HuggingFace</option>
+                                    <option value="replicate">Replicate</option>
+                                    <option value="perplexity">Perplexity AI</option>
+                                </optgroup>
+                                <optgroup label="Local">
+                                    <option value="ollama">Ollama (Local)</option>
+                                </optgroup>
                             </select>
                         </div>
                         <div class="setting-row">
-                            <span class="setting-label">OpenAI API Key</span>
-                            <input type="password" class="setting-input" id="settingOpenAIKey" placeholder="sk-...">
+                            <span class="setting-label">API Key for Selected Provider</span>
+                            <input type="password" class="setting-input" id="settingAPIKey" placeholder="Enter API key...">
                         </div>
-                        <div class="setting-row">
-                            <span class="setting-label">Claude API Key</span>
-                            <input type="password" class="setting-input" id="settingClaudeKey" placeholder="sk-ant-...">
-                        </div>
+                        <button class="btn btn-primary" onclick="saveProviderKey()" style="margin-top: 10px;">
+                            <i class="fas fa-save"></i> Save API Key
+                        </button>
                     </div>
                 </div>
 
@@ -1768,6 +1804,39 @@
             }
         }
 
+        async function saveProviderKey() {
+            const provider = document.getElementById('settingProvider').value;
+            const apiKey = document.getElementById('settingAPIKey').value;
+
+            if (!apiKey) {
+                showToast('Please enter an API key', 'error');
+                return;
+            }
+
+            try {
+                // First set as active provider
+                await fetch(`${API_URL}/api/providers/set-active?provider=${provider}`, {
+                    method: 'POST'
+                });
+
+                // Then update the API key
+                await fetch(`${API_URL}/api/providers/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        provider: provider,
+                        api_key: apiKey,
+                        enabled: true
+                    })
+                });
+
+                showToast(`${provider} configured and set as active provider`, 'success');
+                document.getElementById('settingAPIKey').value = '';
+            } catch (e) {
+                showToast('Failed to save provider configuration', 'error');
+            }
+        }
+
         async function saveSettings() {
             const config = {
                 active_provider: document.getElementById('settingProvider').value,
@@ -1779,18 +1848,6 @@
                 },
                 blocked_keywords: document.getElementById('settingKeywords').value.split('\n').filter(k => k.trim())
             };
-
-            const openaiKey = document.getElementById('settingOpenAIKey').value;
-            const claudeKey = document.getElementById('settingClaudeKey').value;
-
-            if (openaiKey) {
-                config.providers = config.providers || {};
-                config.providers.openai = { api_key: openaiKey };
-            }
-            if (claudeKey) {
-                config.providers = config.providers || {};
-                config.providers.claude = { api_key: claudeKey };
-            }
 
             try {
                 await fetch(`${API_URL}/api/config`, {
