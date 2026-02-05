@@ -24,8 +24,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from collections import defaultdict
+
+# Indian Standard Time (UTC+5:30)
+IST = timezone(timedelta(hours=5, minutes=30))
+
+def now_ist():
+    """Get current time in Indian Standard Time (IST)."""
+    return datetime.now(IST)
 from enum import Enum
 import httpx
 import re
@@ -557,7 +564,7 @@ async def send_webhook(event_type: str, payload: dict):
                     endpoint,
                     json={
                         "event": event_type,
-                        "timestamp": datetime.now().isoformat(),
+                        "timestamp": now_ist().isoformat(),
                         "data": payload
                     }
                 )
@@ -583,7 +590,7 @@ async def send_teams_notification(message: str, severity: str = "INFO"):
         "sections": [{
             "facts": [
                 {"name": "Severity", "value": severity},
-                {"name": "Timestamp", "value": datetime.now().isoformat()}
+                {"name": "Timestamp", "value": now_ist().isoformat()}
             ]
         }]
     }
@@ -615,7 +622,7 @@ async def send_slack_notification(message: str, severity: str = "INFO"):
                 "type": "section",
                 "fields": [
                     {"type": "mrkdwn", "text": f"*Severity:*\n{severity}"},
-                    {"type": "mrkdwn", "text": f"*Time:*\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"}
+                    {"type": "mrkdwn", "text": f"*Time:*\n{now_ist().strftime('%Y-%m-%d %H:%M:%S')}"}
                 ]
             },
             {
@@ -661,7 +668,7 @@ def log_integration_event(event_type: str, integration: str, payload: dict, stat
     conn.execute("""
         INSERT INTO integration_events (timestamp, event_type, integration, payload_json, status, response)
         VALUES (?, ?, ?, ?, ?, ?)
-    """, (datetime.now().isoformat(), event_type, integration, json.dumps(payload), status, response))
+    """, (now_ist().isoformat(), event_type, integration, json.dumps(payload), status, response))
     conn.commit()
     conn.close()
 
@@ -690,7 +697,7 @@ def log_request(
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         request_id,
-        datetime.now().isoformat(),
+        now_ist().isoformat(),
         user_id,
         user_role,
         action,
@@ -710,7 +717,7 @@ def log_request(
     # Console logging
     config = load_config()
     if config.get("alerts", {}).get("log_to_console", True):
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] {action} | User: {user_id} ({user_role}) | Provider: {provider} | Detections: {len(detections)}")
+        print(f"[{now_ist().strftime('%H:%M:%S')}] {action} | User: {user_id} ({user_role}) | Provider: {provider} | Detections: {len(detections)}")
 
 # ============== RATE LIMITING ==============
 
@@ -723,7 +730,7 @@ def check_rate_limit(user_id: str) -> dict:
     if not rate_config.get("enabled", False):
         return {"allowed": True}
 
-    now = datetime.now()
+    now = now_ist()
 
     # Clean old requests
     user_requests[user_id] = [
@@ -1183,7 +1190,7 @@ async def admin_redirect():
 @app.post("/api/chat")
 async def chat(request: ChatRequest):
     """Main chat endpoint - scans and routes requests."""
-    start_time = datetime.now()
+    start_time = now_ist()
     request_id = str(uuid.uuid4())[:8]
     config = load_config()
 
@@ -1212,7 +1219,7 @@ async def chat(request: ChatRequest):
 
     # Scan for sensitive data
     scan_result = scan_content(full_content)
-    processing_time = int((datetime.now() - start_time).total_seconds() * 1000)
+    processing_time = int((now_ist() - start_time).total_seconds() * 1000)
 
     # Determine routing
     if scan_result["is_sensitive"]:
@@ -1241,7 +1248,7 @@ async def chat(request: ChatRequest):
                 "event_type": "critical_violation",
                 "user_id": request.user_id,
                 "detections": scan_result["detections"],
-                "timestamp": datetime.now().isoformat()
+                "timestamp": now_ist().isoformat()
             })
 
         if local_llm_mode == "block":
@@ -1293,7 +1300,7 @@ async def chat(request: ChatRequest):
         # Clean content - route to external API
         provider = request.provider or config.get("active_provider", "openai")
         api_result = await call_external_api(messages, config, provider)
-        processing_time = int((datetime.now() - start_time).total_seconds() * 1000)
+        processing_time = int((now_ist() - start_time).total_seconds() * 1000)
 
         if api_result["success"]:
             log_request(
@@ -1624,7 +1631,7 @@ async def health_check():
 
     return {
         "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": now_ist().isoformat(),
         "version": "2.0.0",
         "active_provider": config.get("active_provider"),
         "local_llm_mode": config.get("local_llm_mode"),
