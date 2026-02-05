@@ -13,24 +13,27 @@
         }
 
         :root {
-            --primary: #2b2e8c;
-            --primary-dark: #1e2165;
-            --primary-light: #7978ba;
-            --bg-dark: #0a0b1a;
-            --bg-card: #141530;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border: #2b2e8c40;
+            /* Motilal Oswal Light Theme */
+            --mo-blue: #2b2e8c;
+            --mo-blue-light: #4a4db8;
+            --mo-blue-dark: #1e2165;
+            --mo-purple: #7978ba;
+            --bg-white: #ffffff;
+            --bg-light: #f5f7fa;
+            --bg-gray: #e8ecf1;
+            --text-dark: #1a1a2e;
+            --text-gray: #5a6378;
+            --text-muted: #8892a6;
+            --border-light: #e0e5eb;
             --success: #10b981;
             --error: #ef4444;
-            --mo-blue: #2b2e8c;
-            --mo-purple: #7978ba;
+            --warning: #f59e0b;
         }
 
         body {
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
+            background: var(--bg-light);
+            color: var(--text-dark);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -38,17 +41,18 @@
             overflow: hidden;
         }
 
-        /* Animated Background */
-        .bg-animation {
+        /* Subtle Background Pattern */
+        .bg-pattern {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -1;
+            background: var(--bg-light);
         }
 
-        .bg-animation::before {
+        .bg-pattern::before {
             content: '';
             position: absolute;
             top: -50%;
@@ -56,9 +60,9 @@
             width: 200%;
             height: 200%;
             background:
-                radial-gradient(circle at 20% 30%, rgba(43, 46, 140, 0.20) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(121, 120, 186, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(43, 46, 140, 0.08) 0%, transparent 60%);
+                radial-gradient(circle at 20% 30%, rgba(43, 46, 140, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(121, 120, 186, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(43, 46, 140, 0.03) 0%, transparent 60%);
             animation: bgRotate 30s linear infinite;
         }
 
@@ -74,12 +78,11 @@
         }
 
         .login-card {
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
             border-radius: 24px;
             padding: 3rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 40px rgba(43, 46, 140, 0.08);
         }
 
         .logo-section {
@@ -97,28 +100,30 @@
             justify-content: center;
             font-size: 2rem;
             margin: 0 auto 1.5rem;
-            box-shadow: 0 10px 40px rgba(43, 46, 140, 0.4);
+            box-shadow: 0 10px 30px rgba(43, 46, 140, 0.25);
         }
 
         .logo-title {
             font-size: 1.5rem;
             font-weight: 700;
+            color: var(--text-dark);
             margin-bottom: 0.5rem;
         }
 
         .logo-subtitle {
-            color: var(--text-secondary);
+            color: var(--text-gray);
             font-size: 0.9rem;
         }
 
         .company-badge {
             display: inline-block;
-            background: rgba(43, 46, 140, 0.15);
-            border: 1px solid rgba(43, 46, 140, 0.4);
+            background: rgba(43, 46, 140, 0.08);
+            border: 1px solid rgba(43, 46, 140, 0.15);
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-size: 0.75rem;
-            color: var(--mo-purple);
+            color: var(--mo-blue);
+            font-weight: 500;
             margin-top: 1rem;
         }
 
@@ -131,17 +136,17 @@
             font-size: 0.875rem;
             font-weight: 500;
             margin-bottom: 0.5rem;
-            color: var(--text-secondary);
+            color: var(--text-gray);
         }
 
         .form-input {
             width: 100%;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
             border-radius: 12px;
             padding: 0.875rem 1rem;
             font-size: 1rem;
-            color: var(--text-primary);
+            color: var(--text-dark);
             font-family: inherit;
             transition: all 0.2s ease;
         }
@@ -149,25 +154,26 @@
         .form-input:focus {
             outline: none;
             border-color: var(--mo-blue);
-            box-shadow: 0 0 0 3px rgba(43, 46, 140, 0.15);
+            box-shadow: 0 0 0 3px rgba(43, 46, 140, 0.1);
+            background: var(--bg-white);
         }
 
         .form-input::placeholder {
-            color: var(--text-secondary);
+            color: var(--text-muted);
         }
 
         .form-select {
             width: 100%;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
             border-radius: 12px;
             padding: 0.875rem 1rem;
             font-size: 1rem;
-            color: var(--text-primary);
+            color: var(--text-dark);
             font-family: inherit;
             cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%235a6378' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 1rem center;
             background-size: 1rem;
@@ -176,35 +182,36 @@
         .form-select:focus {
             outline: none;
             border-color: var(--mo-blue);
+            box-shadow: 0 0 0 3px rgba(43, 46, 140, 0.1);
         }
 
         .form-select option {
-            background: var(--bg-dark);
-            color: var(--text-primary);
+            background: var(--bg-white);
+            color: var(--text-dark);
         }
 
         .role-info {
-            background: rgba(43, 46, 140, 0.1);
-            border: 1px solid rgba(43, 46, 140, 0.25);
+            background: rgba(43, 46, 140, 0.05);
+            border: 1px solid rgba(43, 46, 140, 0.1);
             border-radius: 12px;
             padding: 1rem;
             margin-top: 0.75rem;
             font-size: 0.8rem;
-            color: var(--text-secondary);
+            color: var(--text-gray);
         }
 
         .role-info strong {
-            color: var(--mo-purple);
+            color: var(--mo-blue);
         }
 
         .ad-simulation-notice {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.2);
             border-radius: 8px;
             padding: 0.75rem;
             margin-bottom: 1.5rem;
             font-size: 0.75rem;
-            color: #fbbf24;
+            color: #b45309;
             text-align: center;
         }
 
@@ -224,7 +231,7 @@
 
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 40px rgba(43, 46, 140, 0.5);
+            box-shadow: 0 10px 30px rgba(43, 46, 140, 0.3);
         }
 
         .login-btn:active {
@@ -244,12 +251,12 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: var(--border);
+            background: var(--border-light);
         }
 
         .divider span {
             padding: 0 1rem;
-            color: var(--text-secondary);
+            color: var(--text-muted);
         }
 
         .sso-buttons {
@@ -264,19 +271,19 @@
             justify-content: center;
             gap: 0.75rem;
             width: 100%;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
             border-radius: 12px;
             padding: 0.875rem;
             font-size: 0.9rem;
-            color: var(--text-primary);
+            color: var(--text-dark);
             cursor: pointer;
             transition: all 0.2s ease;
         }
 
         .sso-btn:hover {
             border-color: var(--mo-blue);
-            background: rgba(43, 46, 140, 0.08);
+            background: rgba(43, 46, 140, 0.03);
         }
 
         .sso-btn img {
@@ -288,12 +295,13 @@
             text-align: center;
             margin-top: 2rem;
             font-size: 0.8rem;
-            color: var(--text-secondary);
+            color: var(--text-muted);
         }
 
         .footer-links a {
-            color: var(--mo-purple);
+            color: var(--mo-blue);
             text-decoration: none;
+            font-weight: 500;
         }
 
         .footer-links a:hover {
@@ -306,13 +314,15 @@
             bottom: 2rem;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: var(--bg-card);
-            border: 1px solid var(--border);
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
             padding: 1rem 1.5rem;
             border-radius: 12px;
             opacity: 0;
             transition: all 0.3s ease;
             z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            color: var(--text-dark);
         }
 
         .toast.show {
@@ -322,11 +332,19 @@
 
         .toast.error {
             border-color: var(--error);
+            background: #fef2f2;
+            color: var(--error);
+        }
+
+        .toast.info {
+            border-color: var(--mo-blue);
+            background: rgba(43, 46, 140, 0.05);
+            color: var(--mo-blue);
         }
     </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
+    <div class="bg-pattern"></div>
 
     <div class="login-container">
         <div class="login-card">
