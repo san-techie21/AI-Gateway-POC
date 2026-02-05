@@ -677,19 +677,55 @@
             <div class="model-selector">
                 <label for="modelSelect">Model:</label>
                 <select class="model-select" id="modelSelect" onchange="onModelChange()">
-                    <optgroup label="🌐 Research Mode (External)">
-                        <option value="openai:gpt-4o">GPT-4o (Recommended)</option>
-                        <option value="openai:gpt-4o-mini">GPT-4o Mini (Fast)</option>
-                        <option value="claude:claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
-                        <option value="gemini:gemini-1.5-pro">Gemini 1.5 Pro</option>
-                        <option value="perplexity:llama-3.1-sonar-large-128k-online">Perplexity (Web Search)</option>
-                        <option value="groq:llama-3.3-70b-versatile">Groq Llama 3.3 (Fast)</option>
+                    <optgroup label="⭐ Flagship Models (2026)">
+                        <option value="openai:gpt-5.2">GPT-5.2 (Latest)</option>
+                        <option value="openai:gpt-5.1">GPT-5.1 (Recommended)</option>
+                        <option value="claude:claude-opus-4.5">Claude Opus 4.5 (Best Coding)</option>
+                        <option value="claude:claude-sonnet-4.5">Claude Sonnet 4.5 (Fast)</option>
+                        <option value="gemini:gemini-3-pro">Gemini 3 Pro (Multimodal)</option>
+                        <option value="grok:grok-4.1">Grok 4.1 (1M Context)</option>
                     </optgroup>
-                    <optgroup label="🔒 Secure Mode (Local)">
-                        <option value="ollama:llama3.1:70b">Llama 3.1 70B (Local)</option>
-                        <option value="ollama:llama3.1:8b">Llama 3.1 8B (Local Fast)</option>
-                        <option value="ollama:mistral:7b">Mistral 7B (Local)</option>
-                        <option value="ollama:codellama:34b">CodeLlama 34B (Local)</option>
+                    <optgroup label="🌐 Major LLMs">
+                        <option value="openai:gpt-4o">GPT-4o</option>
+                        <option value="openai:o1-preview">OpenAI o1 (Reasoning)</option>
+                        <option value="deepseek:deepseek-v3">DeepSeek V3</option>
+                        <option value="mistral:mistral-large">Mistral Large</option>
+                        <option value="cohere:command-r-plus">Cohere Command R+</option>
+                        <option value="ai21:jamba-1.5-large">AI21 Jamba 1.5</option>
+                    </optgroup>
+                    <optgroup label="⚡ Ultra-Fast Inference">
+                        <option value="groq:llama-3.3-70b">Groq Llama 3.3 70B</option>
+                        <option value="cerebras:llama-3.3-70b">Cerebras (Ultra-Fast)</option>
+                        <option value="sambanova:llama-3.1-405b">SambaNova 405B</option>
+                        <option value="fireworks:llama-v3p1-405b">Fireworks 405B</option>
+                        <option value="together:meta-llama-3.1-405b">Together 405B</option>
+                        <option value="deepinfra:llama-3.1-70b">DeepInfra 70B</option>
+                        <option value="lepton:llama-3.1-70b">Lepton 70B</option>
+                    </optgroup>
+                    <optgroup label="🔍 Web Search & Research">
+                        <option value="perplexity:sonar-pro">Perplexity Sonar Pro</option>
+                        <option value="perplexity:sonar-huge">Perplexity Sonar Huge</option>
+                    </optgroup>
+                    <optgroup label="🇨🇳 Chinese LLMs">
+                        <option value="qwen:qwen-2.5-72b">Alibaba Qwen 2.5 72B</option>
+                        <option value="glm:glm-4-plus">Zhipu GLM-4 Plus</option>
+                        <option value="moonshot:moonshot-v1-128k">Moonshot Kimi 128K</option>
+                        <option value="yi:yi-large">01.AI Yi Large</option>
+                        <option value="baichuan:baichuan-4">Baichuan 4</option>
+                    </optgroup>
+                    <optgroup label="🏢 Enterprise Cloud">
+                        <option value="azure_openai:gpt-5">Azure OpenAI GPT-5</option>
+                        <option value="aws_bedrock:claude-3-opus">AWS Bedrock Claude</option>
+                        <option value="aws_bedrock:llama-3.1-405b">AWS Bedrock Llama</option>
+                        <option value="vertex:gemini-3-pro">Google Vertex Gemini</option>
+                    </optgroup>
+                    <optgroup label="🔐 Secure Mode (Local/On-Prem)">
+                        <option value="ollama:llama-4-maverick">Llama 4 Maverick (Local)</option>
+                        <option value="ollama:llama-3.1-70b">Llama 3.1 70B (Local)</option>
+                        <option value="ollama:qwen-2.5-32b">Qwen 2.5 32B (Local)</option>
+                        <option value="ollama:mistral-large">Mistral Large (Local)</option>
+                        <option value="ollama:codellama-70b">CodeLlama 70B (Local)</option>
+                        <option value="cohere_onprem:command-r">Cohere On-Prem</option>
                     </optgroup>
                 </select>
             </div>
@@ -777,7 +813,7 @@
         const API_BASE = window.location.origin;
         let isLoading = false;
         let conversationHistory = [];
-        let selectedModel = localStorage.getItem('selectedModel') || 'openai:gpt-4o';
+        let selectedModel = localStorage.getItem('selectedModel') || 'openai:gpt-5.1';
         let currentMode = localStorage.getItem('chatMode') || 'research';
         let uploadedFile = null;
 
