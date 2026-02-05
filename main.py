@@ -544,7 +544,9 @@ async def call_external_api(messages: list, config: dict) -> dict:
 # ============== API MODELS ==============
 
 class ChatRequest(BaseModel):
-    messages: List[Dict[str, str]]
+    messages: Optional[List[Dict[str, str]]] = None  # Full conversation format
+    message: Optional[str] = None  # Simple single message (for user chat)
+    conversation_history: Optional[List[Dict[str, str]]] = None  # Previous messages
     user_id: Optional[str] = "anonymous"
     provider: Optional[str] = None  # Override default provider
 
@@ -570,9 +572,32 @@ async def root():
     except:
         return "<h1>AI Gateway POC</h1><p>Admin dashboard not found. Please ensure admin.html is in the same directory.</p>"
 
+@app.get("/chat", response_class=HTMLResponse)
+async def user_chat():
+    """Serve user-facing chat interface."""
+    try:
+        with open("chat.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except:
+        return "<h1>AI Chat</h1><p>Chat interface not found. Please ensure chat.html is in the same directory.</p>"
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_redirect():
+    """Redirect to admin dashboard."""
+    try:
+        with open("admin.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except:
+        return "<h1>AI Gateway POC</h1><p>Admin dashboard not found.</p>"
+
 @app.post("/api/chat")
 async def chat(request: ChatRequest):
-    """Main chat endpoint - scans and routes requests."""
+    """Main chat endpoint - scans and routes requests.
+
+    Supports two formats:
+    1. Admin format: {"messages": [{"role": "user", "content": "..."}]}
+    2. User format: {"message": "...", "conversation_history": [...]}
+    """
     start_time = datetime.now()
     request_id = str(uuid.uuid4())[:8]
     config = load_config()
@@ -588,8 +613,21 @@ async def chat(request: ChatRequest):
             }
         )
 
-    # Extract full content
-    full_content = "\n".join([msg.get("content", "") for msg in request.messages])
+    # Handle both message formats
+    if request.message:
+        # User chat format - build messages from conversation history
+        messages = request.conversation_history or []
+        messages.append({"role": "user", "content": request.message})
+        full_content = request.message  # Only scan current message
+    elif request.messages:
+        # Admin/test format
+        messages = request.messages
+        full_content = "\n".join([msg.get("content", "") for msg in messages])
+    else:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Either 'message' or 'messages' field is required"}
+        )
 
     # Scan for sensitive data
     scan_result = scan_content(full_content)
@@ -613,16 +651,20 @@ async def chat(request: ChatRequest):
                 processing_time_ms=processing_time
             )
 
+            # User-friendly response (hides technical details from end user)
             return JSONResponse(
-                status_code=403,
+                status_code=200,  # Return 200 so user UI handles it gracefully
                 content={
                     "request_id": request_id,
-                    "status": "BLOCKED",
-                    "message": "Request blocked due to sensitive content",
-                    "detections": scan_result["detections"],
-                    "severity": scan_result["severity"],
-                    "suggestion": "Please remove sensitive information and try again.",
-                    "note": "In production with Local LLM, this would be processed securely on-premise."
+                    "blocked": True,
+                    "response": "I'm sorry, but I cannot process this request as it contains sensitive information. Please rephrase your message without including personal data, credentials, or confidential information.",
+                    # Admin-only fields (can be filtered out in user UI)
+                    "_admin_info": {
+                        "status": "BLOCKED",
+                        "detections": scan_result["detections"],
+                        "severity": scan_result["severity"],
+                        "suggestion": "Please remove sensitive information and try again."
+                    }
                 }
             )
 
@@ -655,7 +697,7 @@ async def chat(request: ChatRequest):
     else:
         # Clean content - route to external API
         provider = request.provider or config.get("active_provider", "openai")
-        api_result = await call_external_api(request.messages, config)
+        api_result = await call_external_api(messages, config)
 
         processing_time = int((datetime.now() - start_time).total_seconds() * 1000)
 
@@ -835,6 +877,100 @@ async def clear_logs():
     conn.commit()
     conn.close()
     return {"status": "cleared", "message": "All logs cleared"}
+
+@app.get("/api/violations")
+async def get_violations(limit: int = 100, since_id: int = None):
+    """Get only violation logs (BLOCKED or ROUTED_LOCAL_LLM with detections).
+
+    This endpoint is specifically for monitoring sensitive data attempts.
+    Admin can use this to review violations and receive notifications.
+
+    Args:
+        limit: Maximum number of violations to return
+        since_id: Only return violations with ID greater than this (for polling new violations)
+    """
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+
+    query = """
+        SELECT * FROM request_logs
+        WHERE (action = 'BLOCKED' OR action = 'ROUTED_LOCAL_LLM')
+        AND detections_json != '[]'
+    """
+    params = []
+
+    if since_id:
+        query += " AND id > ?"
+        params.append(since_id)
+
+    query += " ORDER BY timestamp DESC LIMIT ?"
+    params.append(limit)
+
+    cursor = conn.execute(query, params)
+    violations = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+
+    # Parse detections JSON and add severity info
+    for v in violations:
+        if v.get("detections_json"):
+            v["detections"] = json.loads(v["detections_json"])
+            del v["detections_json"]
+            # Calculate severity level
+            severities = [d.get("severity", "LOW") for d in v["detections"]]
+            if "CRITICAL" in severities:
+                v["severity_level"] = "CRITICAL"
+            elif "HIGH" in severities:
+                v["severity_level"] = "HIGH"
+            elif "MEDIUM" in severities:
+                v["severity_level"] = "MEDIUM"
+            else:
+                v["severity_level"] = "LOW"
+
+    return {
+        "violations": violations,
+        "count": len(violations),
+        "has_critical": any(v.get("severity_level") == "CRITICAL" for v in violations)
+    }
+
+@app.get("/api/violations/count")
+async def get_violation_count(since_minutes: int = 60):
+    """Get count of recent violations for notification badges.
+
+    Args:
+        since_minutes: Count violations from the last N minutes
+    """
+    conn = sqlite3.connect(DB_FILE)
+
+    cursor = conn.execute("""
+        SELECT COUNT(*) FROM request_logs
+        WHERE (action = 'BLOCKED' OR action = 'ROUTED_LOCAL_LLM')
+        AND detections_json != '[]'
+        AND timestamp > datetime('now', ?)
+    """, (f'-{since_minutes} minutes',))
+
+    count = cursor.fetchone()[0]
+
+    # Get critical count
+    cursor = conn.execute("""
+        SELECT detections_json FROM request_logs
+        WHERE (action = 'BLOCKED' OR action = 'ROUTED_LOCAL_LLM')
+        AND detections_json != '[]'
+        AND timestamp > datetime('now', ?)
+    """, (f'-{since_minutes} minutes',))
+
+    critical_count = 0
+    for row in cursor.fetchall():
+        detections = json.loads(row[0])
+        if any(d.get("severity") == "CRITICAL" for d in detections):
+            critical_count += 1
+
+    conn.close()
+
+    return {
+        "total_violations": count,
+        "critical_violations": critical_count,
+        "since_minutes": since_minutes
+    }
 
 @app.get("/api/patterns")
 async def get_patterns():
