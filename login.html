@@ -91,16 +91,14 @@
         }
 
         .logo-icon {
-            width: 72px;
-            height: 72px;
-            background: linear-gradient(135deg, var(--mo-blue) 0%, var(--mo-purple) 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
+            width: 180px;
+            height: auto;
             margin: 0 auto 1.5rem;
-            box-shadow: 0 10px 30px rgba(43, 46, 140, 0.25);
+        }
+
+        .logo-icon img {
+            width: 100%;
+            height: auto;
         }
 
         .logo-title {
@@ -349,10 +347,11 @@
     <div class="login-container">
         <div class="login-card">
             <div class="logo-section">
-                <div class="logo-icon">🛡️</div>
+                <div class="logo-icon">
+                    <img src="/static/mo-logo.svg" alt="Motilal Oswal">
+                </div>
                 <h1 class="logo-title">AI Gateway</h1>
                 <p class="logo-subtitle">Enterprise Security Layer</p>
-                <span class="company-badge">Motilal Oswal Financial Services</span>
             </div>
 
             <div class="ad-simulation-notice">

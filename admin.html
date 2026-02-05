@@ -68,23 +68,21 @@
 
         .logo {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             padding: 8px 12px;
             margin-bottom: 32px;
         }
 
         .logo-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--gradient-1);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-            box-shadow: 0 8px 16px rgba(43, 46, 140, 0.25);
+            width: 140px;
+            height: auto;
+        }
+
+        .logo-icon img {
+            width: 100%;
+            height: auto;
         }
 
         .logo-text {
@@ -1055,12 +1053,9 @@
     <aside class="sidebar">
         <div class="logo">
             <div class="logo-icon">
-                <i class="fas fa-shield-halved"></i>
+                <img src="/static/mo-logo.svg" alt="Motilal Oswal">
             </div>
-            <div>
-                <div class="logo-text">AI Gateway</div>
-                <div class="logo-subtitle">Security Layer</div>
-            </div>
+            <div class="logo-text">AI Gateway</div>
         </div>
 
         <nav class="nav-section">
