@@ -1,0 +1,59 @@
+{
+  "providers": {
+    "openai": {
+      "api_key": "YOUR_OPENAI_API_KEY_HERE",
+      "base_url": "https://api.openai.com/v1/chat/completions",
+      "default_model": "gpt-4o-mini"
+    },
+    "claude": {
+      "api_key": "YOUR_CLAUDE_API_KEY_HERE",
+      "base_url": "https://api.anthropic.com/v1/messages",
+      "default_model": "claude-3-5-sonnet-20241022"
+    }
+  },
+  "active_provider": "openai",
+  "local_llm_mode": "block",
+  "file_size_limits": {
+    "max_content_size_mb": 1,
+    "max_file_upload_mb": 1,
+    "warn_threshold_kb": 500
+  },
+  "blocked_keywords": [
+    "confidential",
+    "strictly confidential",
+    "internal only",
+    "internal use only",
+    "do not share",
+    "do not distribute",
+    "proprietary",
+    "trade secret",
+    "trading algorithm",
+    "UPSI",
+    "unpublished price sensitive",
+    "insider information",
+    "material non-public"
+  ],
+  "company_patterns": {
+    "employee_id": "MOSL-\\d{5,6}",
+    "client_code": "[A-Z]{2}\\d{8}",
+    "internal_systems": [
+      "NEST",
+      "ODIN",
+      "BOLT"
+    ]
+  },
+  "code_detection": {
+    "enabled": true,
+    "warn_lines": 10,
+    "block_lines": 50
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "requests_per_minute": 20,
+    "requests_per_hour": 200
+  },
+  "alerts": {
+    "log_to_console": true,
+    "log_to_file": true
+  }
+}
