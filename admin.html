@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Gateway | Enterprise Security Layer</title>
+    <title>AI Gateway | Enterprise Admin Console</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -64,6 +64,7 @@
             display: flex;
             flex-direction: column;
             box-shadow: var(--shadow-sm);
+            overflow-y: auto;
         }
 
         .logo {
@@ -143,6 +144,19 @@
         .nav-item span {
             font-size: 14px;
             font-weight: 500;
+        }
+
+        .nav-item .badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .nav-item.active .badge {
+            background: rgba(255,255,255,0.3);
         }
 
         .sidebar-footer {
@@ -293,6 +307,11 @@
             color: white;
         }
 
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
         /* Stats Grid */
         .stats-grid {
             display: grid;
@@ -394,6 +413,330 @@
             color: var(--mo-blue);
         }
 
+        /* Tabs for Configuration */
+        .config-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .config-tab {
+            padding: 10px 20px;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-gray);
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            border-bottom: none;
+            background: transparent;
+        }
+
+        .config-tab:hover {
+            color: var(--mo-blue);
+            background: rgba(43, 46, 140, 0.05);
+        }
+
+        .config-tab.active {
+            background: var(--bg-white);
+            color: var(--mo-blue);
+            border-color: var(--border-light);
+            border-bottom: 2px solid var(--bg-white);
+            margin-bottom: -14px;
+        }
+
+        .config-tab i {
+            margin-right: 8px;
+        }
+
+        .config-panel {
+            display: none;
+        }
+
+        .config-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: var(--danger);
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--mo-blue);
+            box-shadow: 0 0 0 3px rgba(43, 46, 140, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-input.mono {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-row.three-col {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        /* Pattern Builder */
+        .pattern-list {
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .pattern-item {
+            display: grid;
+            grid-template-columns: 200px 1fr 120px 80px;
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-light);
+            align-items: center;
+        }
+
+        .pattern-item:last-child {
+            border-bottom: none;
+        }
+
+        .pattern-item.header {
+            background: var(--bg-light);
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pattern-item input, .pattern-item select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 13px;
+            background: var(--bg-white);
+        }
+
+        .pattern-item input:focus, .pattern-item select:focus {
+            outline: none;
+            border-color: var(--mo-blue);
+        }
+
+        .pattern-item .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .pattern-item .btn-icon.delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .pattern-item .btn-icon.delete:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .pattern-item .btn-icon.test {
+            background: rgba(43, 46, 140, 0.1);
+            color: var(--mo-blue);
+        }
+
+        .pattern-item .btn-icon.test:hover {
+            background: var(--mo-blue);
+            color: white;
+        }
+
+        /* Role Matrix */
+        .role-matrix {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .role-matrix th, .role-matrix td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .role-matrix th {
+            background: var(--bg-light);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .role-matrix td {
+            font-size: 14px;
+        }
+
+        .role-matrix tr:hover {
+            background: rgba(43, 46, 140, 0.02);
+        }
+
+        .role-matrix .role-name {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .role-matrix .ad-group {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+            color: var(--mo-blue);
+            background: rgba(43, 46, 140, 0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        /* Toggle Checkbox */
+        .toggle-checkbox {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-checkbox input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-checkbox .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-light);
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .toggle-checkbox .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-checkbox input:checked + .slider {
+            background-color: var(--success);
+        }
+
+        .toggle-checkbox input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Integration Cards */
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .integration-card {
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .integration-card.connected {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .integration-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .integration-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: var(--bg-white);
+            color: var(--mo-blue);
+        }
+
+        .integration-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .integration-status {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .integration-status.connected {
+            color: var(--success);
+        }
+
         /* Chat Interface */
         .chat-container {
             height: 500px;
@@ -439,17 +782,10 @@
             color: white;
         }
 
-        .message.user .message-avatar {
-            background: var(--gradient-1);
-        }
-
-        .message.assistant .message-avatar {
-            background: var(--gradient-3);
-        }
-
-        .message.system .message-avatar {
-            background: var(--gradient-2);
-        }
+        .message.user .message-avatar { background: var(--gradient-1); }
+        .message.assistant .message-avatar { background: var(--gradient-3); }
+        .message.system .message-avatar { background: var(--gradient-2); }
+        .message.local .message-avatar { background: var(--gradient-1); }
 
         .message-content {
             max-width: 70%;
@@ -486,10 +822,6 @@
             border-bottom-left-radius: 4px;
         }
 
-        .message.local .message-avatar {
-            background: var(--gradient-1);
-        }
-
         .chat-input-container {
             display: flex;
             gap: 12px;
@@ -510,10 +842,6 @@
         .chat-input:focus {
             border-color: var(--mo-blue);
             box-shadow: 0 0 0 3px rgba(43, 46, 140, 0.1);
-        }
-
-        .chat-input::placeholder {
-            color: var(--text-muted);
         }
 
         /* Scan Tester */
@@ -540,10 +868,6 @@
         .scan-input:focus {
             border-color: var(--mo-blue);
             box-shadow: 0 0 0 3px rgba(43, 46, 140, 0.1);
-        }
-
-        .scan-input::placeholder {
-            color: var(--text-muted);
         }
 
         .scan-result {
@@ -574,25 +898,10 @@
             text-transform: uppercase;
         }
 
-        .severity-badge.critical {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-
-        .severity-badge.high {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-
-        .severity-badge.medium {
-            background: rgba(43, 46, 140, 0.1);
-            color: var(--mo-blue);
-        }
-
-        .severity-badge.low {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
+        .severity-badge.critical { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .severity-badge.high { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .severity-badge.medium { background: rgba(43, 46, 140, 0.1); color: var(--mo-blue); }
+        .severity-badge.low { background: rgba(16, 185, 129, 0.1); color: var(--success); }
 
         /* Logs Table */
         .logs-table {
@@ -630,20 +939,9 @@
             font-weight: 600;
         }
 
-        .status-pill.allowed {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-
-        .status-pill.blocked {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-
-        .status-pill.local {
-            background: rgba(43, 46, 140, 0.1);
-            color: var(--mo-blue);
-        }
+        .status-pill.allowed { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .status-pill.blocked { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .status-pill.local { background: rgba(43, 46, 140, 0.1); color: var(--mo-blue); }
 
         /* Settings */
         .settings-grid {
@@ -706,7 +1004,7 @@
             box-shadow: 0 0 0 3px rgba(43, 46, 140, 0.1);
         }
 
-        /* Patterns */
+        /* Patterns Grid */
         .patterns-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -835,106 +1133,7 @@
             background: var(--mo-blue);
         }
 
-        /* Responsive */
-        @media (max-width: 1400px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .patterns-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .sidebar {
-                width: 80px;
-                padding: 16px 8px;
-            }
-            .logo-text, .logo-subtitle, .nav-label, .nav-item span, .sidebar-footer {
-                display: none;
-            }
-            .logo {
-                justify-content: center;
-            }
-            .nav-item {
-                justify-content: center;
-                padding: 14px;
-            }
-            .main-content {
-                margin-left: 80px;
-            }
-            .scan-container {
-                grid-template-columns: 1fr;
-            }
-            .settings-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border-light);
-            border-radius: 50%;
-            border-top-color: var(--mo-blue);
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-muted);
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            color: var(--border-light);
-        }
-
-        .empty-state p {
-            font-size: 14px;
-        }
-
-        /* Toast Notifications */
-        .toast-container {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 1000;
-        }
-
-        .toast {
-            background: var(--bg-white);
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: slideIn 0.3s ease;
-            box-shadow: var(--shadow-lg);
-            color: var(--text-dark);
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .toast.success { border-left: 4px solid var(--success); }
-        .toast.error { border-left: 4px solid var(--danger); }
-        .toast.info { border-left: 4px solid var(--mo-blue); }
-
-        /* Quick Action Cards */
+        /* Quick Actions */
         .quick-actions {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -970,7 +1169,7 @@
             color: var(--text-dark);
         }
 
-        /* Hero Section for Dashboard */
+        /* Hero Banner */
         .hero-banner {
             background: var(--gradient-hero);
             border-radius: 24px;
@@ -1035,7 +1234,6 @@
             letter-spacing: 1px;
         }
 
-        /* Company Badge */
         .company-badge {
             position: absolute;
             bottom: 20px;
@@ -1045,6 +1243,117 @@
             border-radius: 20px;
             font-size: 11px;
             color: rgba(255,255,255,0.8);
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: var(--bg-white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            color: var(--text-dark);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.error { border-left: 4px solid var(--danger); }
+        .toast.info { border-left: 4px solid var(--mo-blue); }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-light);
+            border-radius: 50%;
+            border-top-color: var(--mo-blue);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--border-light);
+        }
+
+        /* Info Box */
+        .info-box {
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .info-box i {
+            color: var(--info);
+            font-size: 18px;
+            margin-top: 2px;
+        }
+
+        .info-box p {
+            font-size: 13px;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .patterns-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row.three-col { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 80px;
+                padding: 16px 8px;
+            }
+            .logo-text, .logo-subtitle, .nav-label, .nav-item span, .sidebar-footer {
+                display: none;
+            }
+            .nav-item {
+                justify-content: center;
+                padding: 14px;
+            }
+            .main-content {
+                margin-left: 80px;
+            }
+            .scan-container { grid-template-columns: 1fr; }
+            .settings-grid { grid-template-columns: 1fr; }
+            .integration-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -1056,6 +1365,7 @@
                 <img src="/static/mo-logo.svg" alt="Motilal Oswal">
             </div>
             <div class="logo-text">AI Gateway</div>
+            <div class="logo-subtitle">Admin Console</div>
         </div>
 
         <nav class="nav-section">
@@ -1064,6 +1374,15 @@
                 <i class="fas fa-chart-pie"></i>
                 <span>Dashboard</span>
             </div>
+            <div class="nav-item" data-page="config">
+                <i class="fas fa-sliders-h"></i>
+                <span>Configuration</span>
+                <span class="badge">New</span>
+            </div>
+        </nav>
+
+        <nav class="nav-section">
+            <div class="nav-label">Test</div>
             <div class="nav-item" data-page="chat">
                 <i class="fas fa-comments"></i>
                 <span>Test Chat</span>
@@ -1087,10 +1406,10 @@
         </nav>
 
         <nav class="nav-section">
-            <div class="nav-label">Configure</div>
+            <div class="nav-label">System</div>
             <div class="nav-item" data-page="settings">
                 <i class="fas fa-cog"></i>
-                <span>Settings</span>
+                <span>API Settings</span>
             </div>
         </nav>
 
@@ -1167,13 +1486,13 @@
             </div>
 
             <div class="quick-actions">
+                <div class="quick-action" onclick="showPage('config')">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Configuration</span>
+                </div>
                 <div class="quick-action" onclick="showPage('chat')">
                     <i class="fas fa-comment-dots"></i>
                     <span>Test Chat</span>
-                </div>
-                <div class="quick-action" onclick="showPage('scan')">
-                    <i class="fas fa-microscope"></i>
-                    <span>Scan Content</span>
                 </div>
                 <div class="quick-action" onclick="showPage('logs')">
                     <i class="fas fa-history"></i>
@@ -1184,7 +1503,7 @@
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title"><i class="fas fa-bolt"></i> Recent Activity</h2>
-                    <button class="btn btn-secondary" onclick="loadRecentActivity()">
+                    <button class="btn btn-secondary btn-sm" onclick="loadRecentActivity()">
                         <i class="fas fa-refresh"></i>
                     </button>
                 </div>
@@ -1193,6 +1512,660 @@
                         <i class="fas fa-inbox"></i>
                         <p>No recent activity</p>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuration Page -->
+        <section class="page-section" id="page-config">
+            <div class="header">
+                <div>
+                    <h1 class="page-title">Configuration</h1>
+                    <p class="page-subtitle">Configure detection patterns, roles, integrations, and scale settings</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="exportConfig()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn btn-primary" onclick="saveAllConfig()">
+                        <i class="fas fa-save"></i> Save All Changes
+                    </button>
+                </div>
+            </div>
+
+            <div class="config-tabs">
+                <div class="config-tab active" data-tab="patterns" onclick="showConfigTab('patterns')">
+                    <i class="fas fa-fingerprint"></i>Sensitive Patterns
+                </div>
+                <div class="config-tab" data-tab="roles" onclick="showConfigTab('roles')">
+                    <i class="fas fa-users-cog"></i>Roles & Access
+                </div>
+                <div class="config-tab" data-tab="ad" onclick="showConfigTab('ad')">
+                    <i class="fas fa-sitemap"></i>AD Integration
+                </div>
+                <div class="config-tab" data-tab="siem" onclick="showConfigTab('siem')">
+                    <i class="fas fa-shield-alt"></i>SIEM / QRadar
+                </div>
+                <div class="config-tab" data-tab="scale" onclick="showConfigTab('scale')">
+                    <i class="fas fa-expand-arrows-alt"></i>Scale & Quotas
+                </div>
+            </div>
+
+            <!-- Sensitive Patterns Tab -->
+            <div class="config-panel active" id="panel-patterns">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-fingerprint"></i> Sensitive Data Patterns</h2>
+                        <button class="btn btn-primary btn-sm" onclick="addPattern()">
+                            <i class="fas fa-plus"></i> Add Pattern
+                        </button>
+                    </div>
+
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Define regex patterns to detect sensitive data. These patterns will trigger blocking or local LLM routing. Standard patterns for PAN, Aadhaar, and API keys are pre-configured.</p>
+                    </div>
+
+                    <div class="pattern-list" id="patternList">
+                        <div class="pattern-item header">
+                            <span>Name</span>
+                            <span>Regex Pattern</span>
+                            <span>Severity</span>
+                            <span>Actions</span>
+                        </div>
+                        <!-- Patterns will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-building"></i> Organization-Specific Patterns</h2>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Client Code Format</label>
+                            <input type="text" class="form-input mono" id="patternClientCode" placeholder="e.g., MOT[0-9]{8}">
+                            <p class="form-hint">Regex pattern for your client codes</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Demat Account Format</label>
+                            <input type="text" class="form-input mono" id="patternDemat" placeholder="e.g., IN[0-9]{14}">
+                            <p class="form-hint">Regex pattern for demat account numbers</p>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Trading Account Format</label>
+                            <input type="text" class="form-input mono" id="patternTrading" placeholder="e.g., MOSL[A-Z0-9]{10}">
+                            <p class="form-hint">Regex pattern for trading accounts</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">UCC (Unique Client Code) Format</label>
+                            <input type="text" class="form-input mono" id="patternUCC" placeholder="e.g., [A-Z]{3}[0-9]{7}">
+                            <p class="form-hint">Regex pattern for UCC codes</p>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Employee ID Format</label>
+                            <input type="text" class="form-input mono" id="patternEmpId" placeholder="e.g., EMP[0-9]{6}">
+                            <p class="form-hint">Regex pattern for employee IDs</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Internal Project Codes</label>
+                            <input type="text" class="form-input mono" id="patternProject" placeholder="e.g., PRJ-[A-Z]{2}-[0-9]{4}">
+                            <p class="form-hint">Regex pattern for project codes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-exclamation-triangle"></i> UPSI Keywords</h2>
+                    </div>
+                    <p class="form-hint" style="margin-bottom: 16px;">Enter keywords that indicate Unpublished Price Sensitive Information. One keyword per line.</p>
+                    <textarea class="form-input" id="upsiKeywords" style="height: 200px; font-family: monospace;" placeholder="merger
+acquisition
+quarterly results
+dividend
+board meeting
+financial results
+capital restructure
+buyback"></textarea>
+                </div>
+            </div>
+
+            <!-- Roles & Access Tab -->
+            <div class="config-panel" id="panel-roles">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-users-cog"></i> Role-Based Access Control</h2>
+                    </div>
+
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Configure which roles can access external AI, local LLM, and the admin dashboard. These settings will be enforced based on AD group membership.</p>
+                    </div>
+
+                    <table class="role-matrix">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>AD Group</th>
+                                <th>External AI</th>
+                                <th>Local LLM</th>
+                                <th>Admin Dashboard</th>
+                            </tr>
+                        </thead>
+                        <tbody id="roleMatrixBody">
+                            <tr>
+                                <td class="role-name">General Employee</td>
+                                <td><input type="text" class="form-input" style="width: 180px;" placeholder="CN=AllEmployees,OU=..." data-role="general" data-field="ad_group"></td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" checked data-role="general" data-field="external">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" data-role="general" data-field="local">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" data-role="general" data-field="admin">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="role-name">Research Analyst</td>
+                                <td><input type="text" class="form-input" style="width: 180px;" placeholder="CN=Research,OU=..." data-role="research" data-field="ad_group"></td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" checked data-role="research" data-field="external">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" checked data-role="research" data-field="local">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" data-role="research" data-field="admin">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="role-name">Strategy Team</td>
+                                <td><input type="text" class="form-input" style="width: 180px;" placeholder="CN=Strategy,OU=..." data-role="strategy" data-field="ad_group"></td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" checked data-role="strategy" data-field="external">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" checked data-role="strategy" data-field="local">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" data-role="strategy" data-field="admin">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="role-name">Compliance Team</td>
+                                <td><input type="text" class="form-input" style="width: 180px;" placeholder="CN=Compliance,OU=..." data-role="compliance" data-field="ad_group"></td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" checked data-role="compliance" data-field="external">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" data-role="compliance" data-field="local">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" data-role="compliance" data-field="admin">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="role-name">IT Admin</td>
+                                <td><input type="text" class="form-input" style="width: 180px;" placeholder="CN=ITAdmins,OU=..." data-role="itadmin" data-field="ad_group"></td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" checked data-role="itadmin" data-field="external">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" data-role="itadmin" data-field="local">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" data-role="itadmin" data-field="admin">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="role-name">Security Team</td>
+                                <td><input type="text" class="form-input" style="width: 180px;" placeholder="CN=Security,OU=..." data-role="security" data-field="ad_group"></td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" checked data-role="security" data-field="external">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" data-role="security" data-field="local">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" checked data-role="security" data-field="admin">
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- AD Integration Tab -->
+            <div class="config-panel" id="panel-ad">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-sitemap"></i> Active Directory Configuration</h2>
+                    </div>
+
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Configure connection to your Active Directory for user authentication and group-based access control. Supports LDAP, SAML 2.0, and OAuth 2.0/OpenID Connect.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Authentication Protocol</label>
+                        <select class="form-input" id="adProtocol" style="width: 300px;">
+                            <option value="saml">SAML 2.0</option>
+                            <option value="oauth">OAuth 2.0 / OpenID Connect</option>
+                            <option value="ldap">LDAP Direct Bind</option>
+                            <option value="kerberos">Kerberos</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">AD Server / Domain Controller <span class="required">*</span></label>
+                            <input type="text" class="form-input" id="adServer" placeholder="ldap://dc.motilal.local:389">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Base DN <span class="required">*</span></label>
+                            <input type="text" class="form-input" id="adBaseDN" placeholder="DC=motilal,DC=local">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Bind User DN</label>
+                            <input type="text" class="form-input" id="adBindUser" placeholder="CN=svc_aigateway,OU=ServiceAccounts,DC=...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bind Password</label>
+                            <input type="password" class="form-input" id="adBindPassword" placeholder="Enter service account password">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">User Search Filter</label>
+                            <input type="text" class="form-input mono" id="adUserFilter" placeholder="(&(objectClass=user)(sAMAccountName={username}))">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Group Search Filter</label>
+                            <input type="text" class="form-input mono" id="adGroupFilter" placeholder="(&(objectClass=group)(member={userDN}))">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-secondary" onclick="testADConnection()">
+                        <i class="fas fa-plug"></i> Test Connection
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-key"></i> SAML Configuration</h2>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Identity Provider (IdP) Entity ID</label>
+                            <input type="text" class="form-input" id="samlEntityId" placeholder="https://adfs.motilal.local/adfs/services/trust">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">IdP SSO URL</label>
+                            <input type="text" class="form-input" id="samlSsoUrl" placeholder="https://adfs.motilal.local/adfs/ls/">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">IdP Certificate (PEM format)</label>
+                        <textarea class="form-input mono" id="samlCertificate" style="height: 120px;" placeholder="-----BEGIN CERTIFICATE-----
+...
+-----END CERTIFICATE-----"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIEM / QRadar Tab -->
+            <div class="config-panel" id="panel-siem">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-shield-alt"></i> SIEM Integration</h2>
+                    </div>
+
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Configure log forwarding to your SIEM system for centralized security monitoring and compliance reporting. Supports IBM QRadar, Splunk, ELK, and Azure Sentinel.</p>
+                    </div>
+
+                    <div class="integration-grid">
+                        <div class="integration-card" id="qradarCard">
+                            <div class="integration-header">
+                                <div class="integration-icon"><i class="fas fa-shield-alt"></i></div>
+                                <div>
+                                    <div class="integration-title">IBM QRadar</div>
+                                    <div class="integration-status" id="qradarStatus">Not Connected</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">QRadar Host</label>
+                                <input type="text" class="form-input" id="qradarHost" placeholder="qradar.motilal.local">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Syslog Port</label>
+                                <input type="number" class="form-input" id="qradarPort" value="514">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">API Token (for REST API)</label>
+                                <input type="password" class="form-input" id="qradarToken" placeholder="Enter QRadar API token">
+                            </div>
+                            <button class="btn btn-sm btn-secondary" onclick="testQRadar()">
+                                <i class="fas fa-plug"></i> Test Connection
+                            </button>
+                        </div>
+
+                        <div class="integration-card">
+                            <div class="integration-header">
+                                <div class="integration-icon"><i class="fas fa-search"></i></div>
+                                <div>
+                                    <div class="integration-title">Splunk</div>
+                                    <div class="integration-status">Optional</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">HEC Endpoint</label>
+                                <input type="text" class="form-input" id="splunkEndpoint" placeholder="https://splunk.motilal.local:8088">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">HEC Token</label>
+                                <input type="password" class="form-input" id="splunkToken" placeholder="Enter Splunk HEC token">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-file-alt"></i> Log Forwarding Settings</h2>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Forwarding Mode</label>
+                            <select class="form-input" id="logForwardMode">
+                                <option value="realtime">Real-time (All Events)</option>
+                                <option value="batch_hourly">Batch (Hourly)</option>
+                                <option value="batch_daily">Batch (Daily)</option>
+                                <option value="alerts_only">Alerts Only (Blocked Queries)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Log Format</label>
+                            <select class="form-input" id="logFormat">
+                                <option value="cef">CEF (Common Event Format)</option>
+                                <option value="leef">LEEF (Log Event Extended Format)</option>
+                                <option value="json">JSON</option>
+                                <option value="syslog">Syslog RFC 5424</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Events to Forward</label>
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" checked id="logAllowed"> Allowed Requests
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" checked id="logBlocked"> Blocked Requests
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" checked id="logLocal"> Local LLM Routed
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" checked id="logAuth"> Authentication Events
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="logAdmin"> Admin Actions
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scale & Quotas Tab -->
+            <div class="config-panel" id="panel-scale">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-users"></i> User Scale</h2>
+                    </div>
+
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Configure user scale settings for capacity planning and resource allocation. These values help optimize the system for your organization's size.</p>
+                    </div>
+
+                    <div class="form-row three-col">
+                        <div class="form-group">
+                            <label class="form-label">Total Users</label>
+                            <input type="number" class="form-input" id="scaleTotal" placeholder="100000">
+                            <p class="form-hint">Total employees with access</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Expected Daily Active Users</label>
+                            <input type="number" class="form-input" id="scaleDau" placeholder="10000">
+                            <p class="form-hint">Average daily active users</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Peak Concurrent Users</label>
+                            <input type="number" class="form-input" id="scalePeak" placeholder="1000">
+                            <p class="form-hint">Maximum concurrent users</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-tachometer-alt"></i> Rate Limits & Quotas</h2>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Queries per User per Day</label>
+                            <input type="number" class="form-input" id="quotaUserDaily" value="100">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Queries per User per Hour</label>
+                            <input type="number" class="form-input" id="quotaUserHourly" value="20">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Max Requests per Minute (Global)</label>
+                            <input type="number" class="form-input" id="quotaGlobalRpm" value="1000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Max Token Length per Query</label>
+                            <input type="number" class="form-input" id="quotaMaxTokens" value="8000">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-rupee-sign"></i> Cost Controls</h2>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Monthly Budget (INR)</label>
+                            <input type="number" class="form-input" id="budgetMonthly" placeholder="500000">
+                            <p class="form-hint">Alert when 80% of budget is reached</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cost Alert Email</label>
+                            <input type="email" class="form-input" id="budgetAlertEmail" placeholder="it-alerts@motilal.com">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Cost Optimization Strategy</label>
+                        <select class="form-input" id="costStrategy" style="width: 400px;">
+                            <option value="tiered">Tiered (Local LLM default, External for complex)</option>
+                            <option value="local_first">Local First (External only on request)</option>
+                            <option value="external_first">External First (Higher quality, higher cost)</option>
+                            <option value="department_quota">Department-wise Quotas</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-layer-group"></i> Model Tier Configuration</h2>
+                    </div>
+
+                    <table class="role-matrix">
+                        <thead>
+                            <tr>
+                                <th>Tier</th>
+                                <th>Use Case</th>
+                                <th>Model</th>
+                                <th>Est. Cost/Query</th>
+                                <th>Enabled</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-name">Default</td>
+                                <td>General queries</td>
+                                <td>
+                                    <select class="form-input" style="width: 180px;">
+                                        <option value="local:llama4">Local Llama 4</option>
+                                        <option value="local:qwen">Local Qwen 2.5</option>
+                                        <option value="groq:llama">Groq Llama</option>
+                                    </select>
+                                </td>
+                                <td>Free / ~$0.0001</td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="role-name">Standard</td>
+                                <td>Research queries</td>
+                                <td>
+                                    <select class="form-input" style="width: 180px;">
+                                        <option value="groq:mixtral">Groq Mixtral</option>
+                                        <option value="cerebras:llama">Cerebras Llama</option>
+                                        <option value="together:mistral">Together Mistral</option>
+                                    </select>
+                                </td>
+                                <td>~$0.001</td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="role-name">Premium</td>
+                                <td>Complex analysis</td>
+                                <td>
+                                    <select class="form-input" style="width: 180px;">
+                                        <option value="azure:gpt-4o">Azure GPT-4o</option>
+                                        <option value="bedrock:claude">Bedrock Claude</option>
+                                        <option value="openai:gpt-5">OpenAI GPT-5</option>
+                                    </select>
+                                </td>
+                                <td>~$0.01</td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="role-name">Web Search</td>
+                                <td>Research with citations</td>
+                                <td>
+                                    <select class="form-input" style="width: 180px;">
+                                        <option value="perplexity:sonar">Perplexity Sonar</option>
+                                        <option value="perplexity:sonar-pro">Perplexity Sonar Pro</option>
+                                    </select>
+                                </td>
+                                <td>~$0.005</td>
+                                <td>
+                                    <label class="toggle-checkbox">
+                                        <input type="checkbox" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -1337,7 +2310,7 @@
             <div class="header">
                 <div>
                     <h1 class="page-title">Detection Patterns</h1>
-                    <p class="page-subtitle">All patterns used for sensitive data detection</p>
+                    <p class="page-subtitle">All active patterns used for sensitive data detection</p>
                 </div>
             </div>
 
@@ -1352,8 +2325,8 @@
         <section class="page-section" id="page-settings">
             <div class="header">
                 <div>
-                    <h1 class="page-title">Settings</h1>
-                    <p class="page-subtitle">Configure API keys, limits, and blocked keywords</p>
+                    <h1 class="page-title">API Settings</h1>
+                    <p class="page-subtitle">Configure API keys for AI providers</p>
                 </div>
                 <div class="header-actions">
                     <button class="btn btn-primary" onclick="saveSettings()">
@@ -1369,40 +2342,26 @@
                         <div class="setting-row">
                             <span class="setting-label">Active Provider</span>
                             <select class="setting-input" id="settingProvider">
+                                <optgroup label="Enterprise Cloud">
+                                    <option value="azure_openai">Azure OpenAI (Mumbai)</option>
+                                    <option value="aws_bedrock">AWS Bedrock (Mumbai)</option>
+                                </optgroup>
                                 <optgroup label="Major LLMs">
-                                    <option value="openai">OpenAI (GPT-4o, o1)</option>
+                                    <option value="openai">OpenAI (GPT-4o, GPT-5)</option>
                                     <option value="claude">Anthropic Claude</option>
                                     <option value="gemini">Google Gemini</option>
                                     <option value="deepseek">DeepSeek</option>
                                     <option value="mistral">Mistral AI</option>
                                     <option value="grok">xAI Grok</option>
-                                    <option value="cohere">Cohere</option>
-                                    <option value="ai21">AI21 Labs</option>
                                 </optgroup>
                                 <optgroup label="Fast Inference">
                                     <option value="groq">Groq (Ultra-Fast)</option>
                                     <option value="cerebras">Cerebras (Ultra-Fast)</option>
-                                    <option value="lepton">Lepton AI</option>
                                     <option value="sambanova">SambaNova</option>
                                     <option value="fireworks">Fireworks AI</option>
                                     <option value="together">Together AI</option>
-                                    <option value="deepinfra">DeepInfra</option>
-                                    <option value="octoai">OctoAI</option>
-                                    <option value="novita">Novita AI</option>
                                 </optgroup>
-                                <optgroup label="Chinese LLMs">
-                                    <option value="glm">Zhipu GLM (ChatGLM)</option>
-                                    <option value="qwen">Alibaba Qwen</option>
-                                    <option value="baichuan">Baichuan AI</option>
-                                    <option value="moonshot">Moonshot (Kimi)</option>
-                                    <option value="yi">01.AI Yi</option>
-                                </optgroup>
-                                <optgroup label="Multi-Provider & Enterprise">
-                                    <option value="openrouter">OpenRouter (Multi)</option>
-                                    <option value="azure_openai">Azure OpenAI</option>
-                                    <option value="aws_bedrock">AWS Bedrock</option>
-                                    <option value="huggingface">HuggingFace</option>
-                                    <option value="replicate">Replicate</option>
+                                <optgroup label="Web Search">
                                     <option value="perplexity">Perplexity AI</option>
                                 </optgroup>
                                 <optgroup label="Local">
@@ -1411,7 +2370,7 @@
                             </select>
                         </div>
                         <div class="setting-row">
-                            <span class="setting-label">API Key for Selected Provider</span>
+                            <span class="setting-label">API Key</span>
                             <input type="password" class="setting-input" id="settingAPIKey" placeholder="Enter API key...">
                         </div>
                         <button class="btn btn-primary" onclick="saveProviderKey()" style="margin-top: 10px;">
@@ -1454,6 +2413,7 @@
     <script>
         const API_URL = '';
         let currentMode = 'mock';
+        const CONFIG_STORAGE_KEY = 'aigateway_admin_config';
 
         // Navigation
         document.querySelectorAll('.nav-item').forEach(item => {
@@ -1474,6 +2434,308 @@
             if (page === 'patterns') loadPatterns();
             if (page === 'settings') loadSettings();
             if (page === 'dashboard') refreshStats();
+            if (page === 'config') loadConfigFromStorage();
+        }
+
+        // Config Tabs
+        function showConfigTab(tab) {
+            document.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+            document.querySelectorAll('.config-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(`panel-${tab}`).classList.add('active');
+        }
+
+        // Pattern Management
+        let customPatterns = [];
+
+        function loadDefaultPatterns() {
+            return [
+                { name: 'Aadhaar Number', pattern: '[2-9][0-9]{3}\\s?[0-9]{4}\\s?[0-9]{4}', severity: 'CRITICAL' },
+                { name: 'PAN Card', pattern: '[A-Z]{5}[0-9]{4}[A-Z]', severity: 'CRITICAL' },
+                { name: 'API Key (Generic)', pattern: '(api[_-]?key|apikey)[\\s]*[=:][\\s]*["\']?[a-zA-Z0-9_-]{20,}', severity: 'HIGH' },
+                { name: 'OpenAI API Key', pattern: 'sk-[a-zA-Z0-9]{32,}', severity: 'CRITICAL' },
+                { name: 'AWS Access Key', pattern: 'AKIA[0-9A-Z]{16}', severity: 'CRITICAL' },
+                { name: 'Credit Card', pattern: '\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14})\\b', severity: 'CRITICAL' },
+                { name: 'Email Address', pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}', severity: 'MEDIUM' },
+                { name: 'Phone (India)', pattern: '(?:\\+91|0)?[6-9][0-9]{9}', severity: 'MEDIUM' }
+            ];
+        }
+
+        function renderPatternList() {
+            const container = document.getElementById('patternList');
+            const patterns = [...loadDefaultPatterns(), ...customPatterns];
+
+            let html = `<div class="pattern-item header">
+                <span>Name</span>
+                <span>Regex Pattern</span>
+                <span>Severity</span>
+                <span>Actions</span>
+            </div>`;
+
+            patterns.forEach((p, i) => {
+                const isCustom = i >= loadDefaultPatterns().length;
+                html += `
+                    <div class="pattern-item">
+                        <input type="text" value="${p.name}" ${isCustom ? '' : 'readonly'} data-index="${i}" data-field="name">
+                        <input type="text" value="${p.pattern}" class="mono" ${isCustom ? '' : 'readonly'} data-index="${i}" data-field="pattern">
+                        <select ${isCustom ? '' : 'disabled'} data-index="${i}" data-field="severity">
+                            <option value="LOW" ${p.severity === 'LOW' ? 'selected' : ''}>Low</option>
+                            <option value="MEDIUM" ${p.severity === 'MEDIUM' ? 'selected' : ''}>Medium</option>
+                            <option value="HIGH" ${p.severity === 'HIGH' ? 'selected' : ''}>High</option>
+                            <option value="CRITICAL" ${p.severity === 'CRITICAL' ? 'selected' : ''}>Critical</option>
+                        </select>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-icon test" onclick="testPattern(${i})" title="Test Pattern">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            ${isCustom ? `<button class="btn-icon delete" onclick="deletePattern(${i - loadDefaultPatterns().length})" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function addPattern() {
+            customPatterns.push({
+                name: 'New Pattern',
+                pattern: '',
+                severity: 'MEDIUM'
+            });
+            renderPatternList();
+            showToast('New pattern added. Configure and save.', 'info');
+        }
+
+        function deletePattern(index) {
+            customPatterns.splice(index, 1);
+            renderPatternList();
+            showToast('Pattern deleted', 'success');
+        }
+
+        function testPattern(index) {
+            const patterns = [...loadDefaultPatterns(), ...customPatterns];
+            const pattern = patterns[index];
+            const testText = prompt(`Test pattern: ${pattern.name}\n\nEnter test text:`);
+            if (testText) {
+                try {
+                    const regex = new RegExp(pattern.pattern, 'gi');
+                    const matches = testText.match(regex);
+                    if (matches) {
+                        showToast(`Found ${matches.length} match(es): ${matches.join(', ')}`, 'success');
+                    } else {
+                        showToast('No matches found', 'info');
+                    }
+                } catch (e) {
+                    showToast('Invalid regex pattern: ' + e.message, 'error');
+                }
+            }
+        }
+
+        // Config Save/Load
+        function saveAllConfig() {
+            const config = {
+                patterns: {
+                    clientCode: document.getElementById('patternClientCode').value,
+                    demat: document.getElementById('patternDemat').value,
+                    trading: document.getElementById('patternTrading').value,
+                    ucc: document.getElementById('patternUCC').value,
+                    empId: document.getElementById('patternEmpId').value,
+                    project: document.getElementById('patternProject').value,
+                    customPatterns: customPatterns
+                },
+                upsiKeywords: document.getElementById('upsiKeywords').value,
+                roles: collectRoleConfig(),
+                ad: {
+                    protocol: document.getElementById('adProtocol').value,
+                    server: document.getElementById('adServer').value,
+                    baseDN: document.getElementById('adBaseDN').value,
+                    bindUser: document.getElementById('adBindUser').value,
+                    userFilter: document.getElementById('adUserFilter').value,
+                    groupFilter: document.getElementById('adGroupFilter').value,
+                    samlEntityId: document.getElementById('samlEntityId').value,
+                    samlSsoUrl: document.getElementById('samlSsoUrl').value,
+                    samlCertificate: document.getElementById('samlCertificate').value
+                },
+                siem: {
+                    qradarHost: document.getElementById('qradarHost').value,
+                    qradarPort: document.getElementById('qradarPort').value,
+                    splunkEndpoint: document.getElementById('splunkEndpoint').value,
+                    logForwardMode: document.getElementById('logForwardMode').value,
+                    logFormat: document.getElementById('logFormat').value,
+                    logAllowed: document.getElementById('logAllowed').checked,
+                    logBlocked: document.getElementById('logBlocked').checked,
+                    logLocal: document.getElementById('logLocal').checked,
+                    logAuth: document.getElementById('logAuth').checked,
+                    logAdmin: document.getElementById('logAdmin').checked
+                },
+                scale: {
+                    total: document.getElementById('scaleTotal').value,
+                    dau: document.getElementById('scaleDau').value,
+                    peak: document.getElementById('scalePeak').value,
+                    quotaUserDaily: document.getElementById('quotaUserDaily').value,
+                    quotaUserHourly: document.getElementById('quotaUserHourly').value,
+                    quotaGlobalRpm: document.getElementById('quotaGlobalRpm').value,
+                    quotaMaxTokens: document.getElementById('quotaMaxTokens').value,
+                    budgetMonthly: document.getElementById('budgetMonthly').value,
+                    budgetAlertEmail: document.getElementById('budgetAlertEmail').value,
+                    costStrategy: document.getElementById('costStrategy').value
+                },
+                savedAt: new Date().toISOString()
+            };
+
+            localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
+
+            // Also try to save to backend
+            fetch(`${API_URL}/api/config`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            }).catch(e => console.log('Backend save failed, using localStorage'));
+
+            showToast('Configuration saved successfully', 'success');
+        }
+
+        function collectRoleConfig() {
+            const roles = {};
+            document.querySelectorAll('#roleMatrixBody tr').forEach(row => {
+                const roleInputs = row.querySelectorAll('input');
+                if (roleInputs.length > 0) {
+                    const role = roleInputs[0].dataset.role;
+                    if (role) {
+                        roles[role] = {
+                            ad_group: row.querySelector(`input[data-role="${role}"][data-field="ad_group"]`)?.value || '',
+                            external: row.querySelector(`input[data-role="${role}"][data-field="external"]`)?.checked || false,
+                            local: row.querySelector(`input[data-role="${role}"][data-field="local"]`)?.checked || false,
+                            admin: row.querySelector(`input[data-role="${role}"][data-field="admin"]`)?.checked || false
+                        };
+                    }
+                }
+            });
+            return roles;
+        }
+
+        function loadConfigFromStorage() {
+            const saved = localStorage.getItem(CONFIG_STORAGE_KEY);
+            if (saved) {
+                try {
+                    const config = JSON.parse(saved);
+
+                    // Load patterns
+                    if (config.patterns) {
+                        document.getElementById('patternClientCode').value = config.patterns.clientCode || '';
+                        document.getElementById('patternDemat').value = config.patterns.demat || '';
+                        document.getElementById('patternTrading').value = config.patterns.trading || '';
+                        document.getElementById('patternUCC').value = config.patterns.ucc || '';
+                        document.getElementById('patternEmpId').value = config.patterns.empId || '';
+                        document.getElementById('patternProject').value = config.patterns.project || '';
+                        customPatterns = config.patterns.customPatterns || [];
+                    }
+
+                    document.getElementById('upsiKeywords').value = config.upsiKeywords || '';
+
+                    // Load roles
+                    if (config.roles) {
+                        Object.keys(config.roles).forEach(role => {
+                            const r = config.roles[role];
+                            const adInput = document.querySelector(`input[data-role="${role}"][data-field="ad_group"]`);
+                            if (adInput) adInput.value = r.ad_group || '';
+
+                            const extCheck = document.querySelector(`input[data-role="${role}"][data-field="external"]`);
+                            if (extCheck) extCheck.checked = r.external;
+
+                            const localCheck = document.querySelector(`input[data-role="${role}"][data-field="local"]`);
+                            if (localCheck) localCheck.checked = r.local;
+
+                            const adminCheck = document.querySelector(`input[data-role="${role}"][data-field="admin"]`);
+                            if (adminCheck) adminCheck.checked = r.admin;
+                        });
+                    }
+
+                    // Load AD config
+                    if (config.ad) {
+                        document.getElementById('adProtocol').value = config.ad.protocol || 'saml';
+                        document.getElementById('adServer').value = config.ad.server || '';
+                        document.getElementById('adBaseDN').value = config.ad.baseDN || '';
+                        document.getElementById('adBindUser').value = config.ad.bindUser || '';
+                        document.getElementById('adUserFilter').value = config.ad.userFilter || '';
+                        document.getElementById('adGroupFilter').value = config.ad.groupFilter || '';
+                        document.getElementById('samlEntityId').value = config.ad.samlEntityId || '';
+                        document.getElementById('samlSsoUrl').value = config.ad.samlSsoUrl || '';
+                        document.getElementById('samlCertificate').value = config.ad.samlCertificate || '';
+                    }
+
+                    // Load SIEM config
+                    if (config.siem) {
+                        document.getElementById('qradarHost').value = config.siem.qradarHost || '';
+                        document.getElementById('qradarPort').value = config.siem.qradarPort || '514';
+                        document.getElementById('splunkEndpoint').value = config.siem.splunkEndpoint || '';
+                        document.getElementById('logForwardMode').value = config.siem.logForwardMode || 'realtime';
+                        document.getElementById('logFormat').value = config.siem.logFormat || 'cef';
+                        document.getElementById('logAllowed').checked = config.siem.logAllowed !== false;
+                        document.getElementById('logBlocked').checked = config.siem.logBlocked !== false;
+                        document.getElementById('logLocal').checked = config.siem.logLocal !== false;
+                        document.getElementById('logAuth').checked = config.siem.logAuth !== false;
+                        document.getElementById('logAdmin').checked = config.siem.logAdmin || false;
+                    }
+
+                    // Load scale config
+                    if (config.scale) {
+                        document.getElementById('scaleTotal').value = config.scale.total || '';
+                        document.getElementById('scaleDau').value = config.scale.dau || '';
+                        document.getElementById('scalePeak').value = config.scale.peak || '';
+                        document.getElementById('quotaUserDaily').value = config.scale.quotaUserDaily || '100';
+                        document.getElementById('quotaUserHourly').value = config.scale.quotaUserHourly || '20';
+                        document.getElementById('quotaGlobalRpm').value = config.scale.quotaGlobalRpm || '1000';
+                        document.getElementById('quotaMaxTokens').value = config.scale.quotaMaxTokens || '8000';
+                        document.getElementById('budgetMonthly').value = config.scale.budgetMonthly || '';
+                        document.getElementById('budgetAlertEmail').value = config.scale.budgetAlertEmail || '';
+                        document.getElementById('costStrategy').value = config.scale.costStrategy || 'tiered';
+                    }
+
+                    renderPatternList();
+                } catch (e) {
+                    console.error('Failed to load config', e);
+                }
+            } else {
+                renderPatternList();
+            }
+        }
+
+        function exportConfig() {
+            const saved = localStorage.getItem(CONFIG_STORAGE_KEY);
+            if (saved) {
+                const blob = new Blob([saved], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ai-gateway-config-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('Configuration exported', 'success');
+            } else {
+                showToast('No configuration to export', 'error');
+            }
+        }
+
+        function testADConnection() {
+            showToast('Testing AD connection...', 'info');
+            setTimeout(() => {
+                showToast('AD connection test successful (simulated)', 'success');
+            }, 1500);
+        }
+
+        function testQRadar() {
+            showToast('Testing QRadar connection...', 'info');
+            setTimeout(() => {
+                showToast('QRadar connection test successful (simulated)', 'success');
+                document.getElementById('qradarStatus').textContent = 'Connected';
+                document.getElementById('qradarStatus').classList.add('connected');
+                document.getElementById('qradarCard').classList.add('connected');
+            }, 1500);
         }
 
         // Mode Toggle
@@ -1780,7 +3042,7 @@
                 const res = await fetch(`${API_URL}/api/config`);
                 const config = await res.json();
 
-                document.getElementById('settingProvider').value = config.active_provider || 'openai';
+                document.getElementById('settingProvider').value = config.active_provider || 'azure_openai';
                 document.getElementById('settingMaxSize').value = config.file_size_limits?.max_content_size_mb || 1;
                 document.getElementById('settingRateLimit').value = config.rate_limiting?.requests_per_minute || 10;
                 document.getElementById('settingKeywords').value = (config.blocked_keywords || []).join('\n');
@@ -1802,12 +3064,10 @@
             }
 
             try {
-                // First set as active provider
                 await fetch(`${API_URL}/api/providers/set-active?provider=${provider}`, {
                     method: 'POST'
                 });
 
-                // Then update the API key
                 await fetch(`${API_URL}/api/providers/update`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1926,6 +3186,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             refreshStats();
             loadSettings();
+            renderPatternList();
         });
     </script>
 </body>
