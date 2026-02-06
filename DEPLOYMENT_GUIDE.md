@@ -369,6 +369,112 @@ LOG_RETENTION_DAYS=1825  # 5 years per SEBI requirement
 
 ---
 
+## Local LLM Setup (On-Premise AI)
+
+### Why Local LLM?
+
+When sensitive data is detected (PAN, Aadhaar, UPSI), the gateway routes queries to a local LLM instead of external AI. This ensures sensitive data **never leaves the corporate network**.
+
+### Hardware Requirements
+
+| Component | Minimum | Recommended |
+|-----------|---------|-------------|
+| GPU | NVIDIA A100 40GB | NVIDIA H100 80GB |
+| GPU Memory | 40 GB VRAM | 80 GB VRAM |
+| System RAM | 64 GB | 128 GB |
+| Storage | 500 GB NVMe SSD | 1 TB NVMe SSD |
+| Network | 10 Gbps to Gateway | 25 Gbps |
+
+**Estimated Cost:** Rs. 15-25 Lakhs per GPU server
+
+### Recommended Models
+
+| Model | Size | VRAM Required | Best For |
+|-------|------|---------------|----------|
+| **Llama 3.1 70B** | 70B params | 40 GB | General tasks |
+| **Llama 4 Maverick** | 70B params | 48 GB | Latest capabilities |
+| **Qwen 2.5 72B** | 72B params | 45 GB | Multilingual |
+| **CodeLlama 70B** | 70B params | 40 GB | Code generation |
+
+### Option A: Ollama (Recommended for POC/Pilot)
+
+```bash
+# Install Ollama on GPU server
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Download model (choose one)
+ollama pull llama3.1:70b
+# OR
+ollama pull qwen2:72b
+
+# Start Ollama server
+ollama serve
+
+# Test
+curl http://localhost:11434/api/generate -d '{
+  "model": "llama3.1:70b",
+  "prompt": "Hello"
+}'
+```
+
+### Option B: vLLM (Recommended for Production)
+
+```bash
+# Install vLLM
+pip install vllm
+
+# Start vLLM server
+python -m vllm.entrypoints.openai.api_server \
+  --model meta-llama/Llama-3.1-70B-Instruct \
+  --tensor-parallel-size 2 \
+  --port 8080
+
+# Test (OpenAI-compatible API)
+curl http://localhost:8080/v1/completions -d '{
+  "model": "meta-llama/Llama-3.1-70B-Instruct",
+  "prompt": "Hello"
+}'
+```
+
+### Configure AI Gateway to Use Local LLM
+
+1. **Admin Console → Configuration → Providers**
+2. Set Local LLM Provider: `Ollama (Local)`
+3. Set Local LLM URL: `http://gpu-server.motilal.local:11434`
+
+Or edit `config.json`:
+```json
+{
+  "providers": {
+    "ollama": {
+      "enabled": true,
+      "base_url": "http://gpu-server.motilal.local:11434",
+      "model": "llama3.1:70b"
+    }
+  },
+  "local_llm_mode": "route"
+}
+```
+
+### Network Configuration
+
+```
+┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
+│  AI Gateway     │─────▶│  GPU Server     │      │  External AI    │
+│  (10.0.1.100)   │      │  (10.0.1.200)   │      │  (Azure/AWS)    │
+└────────┬────────┘      └─────────────────┘      └────────▲────────┘
+         │                                                  │
+         │ Sensitive data stays here ◄──────────────────────┘ Clean data goes here
+```
+
+Firewall rule for GPU server:
+```bash
+# Allow Gateway to GPU server
+ufw allow from 10.0.1.100 to any port 11434
+```
+
+---
+
 ## Security Hardening
 
 ### Checklist
