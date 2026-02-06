@@ -19,7 +19,7 @@ Features:
 - Comprehensive PII Detection
 """
 
-from fastapi import FastAPI, HTTPException, Request, UploadFile, File, Header
+from fastapi import FastAPI, HTTPException, Request, UploadFile, File, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -43,6 +43,17 @@ import hashlib
 import uuid
 import os
 
+# Import authentication and QRadar modules
+try:
+    from auth import auth_service, load_auth_config
+    from auth_routes import router as auth_router, get_session_from_cookie
+    from qradar import qradar_service, log_query_allowed, log_query_blocked, log_query_local, log_rate_limit
+    from qradar_routes import router as qradar_router
+    AUTH_MODULES_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Auth/QRadar modules not fully available: {e}")
+    AUTH_MODULES_AVAILABLE = False
+
 # ============== APP SETUP ==============
 
 app = FastAPI(
@@ -63,6 +74,11 @@ app.add_middleware(
 import os
 if os.path.exists("static"):
     app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Include authentication and QRadar routers
+if AUTH_MODULES_AVAILABLE:
+    app.include_router(auth_router)
+    app.include_router(qradar_router)
 
 # ============== CONFIGURATION ==============
 
@@ -1204,6 +1220,11 @@ async def chat(request: ChatRequest):
     rate_check = check_rate_limit(request.user_id)
     if not rate_check["allowed"]:
         await send_webhook("rate_limit_exceeded", {"user_id": request.user_id})
+
+        # Log rate limit to QRadar
+        if AUTH_MODULES_AVAILABLE:
+            log_rate_limit(user_id=request.user_id, limit_type=rate_check.get("reason", "rate_limit"))
+
         return JSONResponse(
             status_code=429,
             content={"error": rate_check["reason"], "request_id": request_id}
@@ -1269,6 +1290,15 @@ async def chat(request: ChatRequest):
                 processing_time_ms=processing_time
             )
 
+            # Log to QRadar SIEM
+            if AUTH_MODULES_AVAILABLE:
+                log_query_blocked(
+                    user_id=request.user_id,
+                    request_id=request_id,
+                    content=full_content,
+                    detections=scan_result["detections"]
+                )
+
             return JSONResponse(
                 status_code=200,
                 content={
@@ -1296,6 +1326,15 @@ async def chat(request: ChatRequest):
                 processing_time_ms=processing_time
             )
 
+            # Log to QRadar SIEM
+            if AUTH_MODULES_AVAILABLE:
+                log_query_local(
+                    user_id=request.user_id,
+                    request_id=request_id,
+                    content=full_content,
+                    detections=scan_result["detections"]
+                )
+
             return {
                 "request_id": request_id,
                 "status": "ROUTED_TO_LOCAL_LLM",
@@ -1321,6 +1360,15 @@ async def chat(request: ChatRequest):
                 response_preview=api_result["content"],
                 processing_time_ms=processing_time
             )
+
+            # Log to QRadar SIEM
+            if AUTH_MODULES_AVAILABLE:
+                log_query_allowed(
+                    user_id=request.user_id,
+                    request_id=request_id,
+                    provider=api_result["provider"],
+                    content=full_content
+                )
 
             return {
                 "request_id": request_id,
