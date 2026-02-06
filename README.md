@@ -1,256 +1,141 @@
 # AI Gateway POC
 
-**Enterprise AI Security Layer - Motilal Oswal Financial Services**
+**Enterprise AI Security Layer for BFSI**
+**Motilal Oswal Financial Services Ltd.**
 
-A proof-of-concept demonstrating an AI security gateway that scans outgoing requests for sensitive data before routing to external AI APIs.
+---
+
+## Live Demo
+
+**URL:** https://ai-gateway-poc.onrender.com
+
+**Test Credentials:**
+| Username | Password | Role |
+|----------|----------|------|
+| admin | admin123 | Full Admin Access |
+| analyst | analyst123 | Research (External + Local AI) |
+| employee | employee123 | General (External AI only) |
+
+---
+
+## What This Does
+
+An intelligent security gateway that:
+1. **Scans** all AI requests for sensitive data (PAN, Aadhaar, UPSI, API keys)
+2. **Blocks** or **Routes** sensitive content to local LLM (data never leaves network)
+3. **Allows** clean queries to external AI (Azure OpenAI, AWS Bedrock)
+4. **Logs** everything for SEBI compliance (5-year audit trail)
 
 ---
 
 ## Quick Start
 
-### 1. Install Python Dependencies
-
 ```bash
-cd G:\AI-Gateway-POC
+# Clone
+git clone https://github.com/san-techie21/AI-Gateway-POC.git
+cd AI-Gateway-POC
+
+# Install
 pip install -r requirements.txt
-```
 
-### 2. Configure API Key
-
-Edit `config.json` and add your OpenAI or Claude API key:
-
-```json
-{
-  "providers": {
-    "openai": {
-      "api_key": "sk-YOUR-OPENAI-KEY-HERE",
-      ...
-    }
-  }
-}
-```
-
-### 3. Run the Server
-
-```bash
+# Run
 python main.py
+
+# Open http://localhost:8000
 ```
 
-Or using uvicorn directly:
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [HANDOVER_SUMMARY.md](HANDOVER_SUMMARY.md) | Complete delivery checklist and go-live summary |
+| [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) | Production deployment instructions |
+| [ADMIN_MANUAL.md](ADMIN_MANUAL.md) | Admin console user guide |
+| [API_DOCUMENTATION.md](API_DOCUMENTATION.md) | API endpoints reference |
+| [SECURITY_ARCHITECTURE.md](SECURITY_ARCHITECTURE.md) | Security controls and design |
+| [COMPLIANCE_MAPPING.md](COMPLIANCE_MAPPING.md) | SEBI, RBI, DPDPA regulatory mapping |
+
+---
+
+## Deployment Options
+
+### Docker (Recommended)
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+docker-compose up -d
 ```
 
-### 4. Open Dashboard
-
-Open your browser and go to:
-```
-http://localhost:8000
+### Linux VM
+```bash
+sudo ./scripts/install.sh
 ```
 
----
-
-## Features Demonstrated
-
-### 1. PII Detection
-- Aadhaar Number (Indian ID)
-- PAN Card
-- Phone Numbers
-- Email Addresses
-- Credit Card Numbers
-- IFSC Codes
-- Demat Account Numbers
-- Passport Numbers
-
-### 2. Credential Detection
-- API Keys
-- AWS Access Keys
-- AWS Secret Keys
-- Private Keys (PEM)
-- Database Connection Strings
-- JWT Tokens
-
-### 3. Content Controls
-- File Size Limits (default: 1MB)
-- Blocked Keywords (confidential, internal only, etc.)
-- Large Code Block Detection
-
-### 4. Routing Logic
-- **Clean Content** → External API (OpenAI/Claude)
-- **Sensitive Content** → Block OR Mock Local LLM (toggle in dashboard)
+### Windows Server
+```powershell
+.\scripts\install.ps1
+```
 
 ---
 
-## Dashboard Features
+## Features
 
-| Section | Description |
-|---------|-------------|
-| **Dashboard** | Stats, mode toggle, recent activity |
-| **Test Chat** | Interactive chat to test detection |
-| **Scan Tester** | Test content without API calls |
-| **Request Logs** | View all requests and their status |
-| **Settings** | Configure API keys, limits, keywords |
-| **Detection Patterns** | View all detection patterns |
+- **Sensitive Data Detection:** Aadhaar, PAN, Credit Cards, API Keys, UPSI keywords
+- **Multi-Provider Routing:** Azure OpenAI (India), AWS Bedrock (Mumbai), Local LLM
+- **Authentication:** SAML 2.0, OAuth 2.0, LDAP/Active Directory
+- **SIEM Integration:** IBM QRadar, Splunk (CEF/LEEF/JSON formats)
+- **Role-Based Access:** 6 configurable roles with AD group mapping
+- **Admin Dashboard:** Real-time monitoring, configuration, logs
 
 ---
 
-## API Endpoints
+## Compliance
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Admin Dashboard |
-| `/api/chat` | POST | Main chat endpoint |
-| `/api/scan` | POST | Test scanner only |
-| `/api/config` | GET/POST | Configuration |
-| `/api/logs` | GET/DELETE | Request logs |
-| `/api/logs/stats` | GET | Statistics |
-| `/api/patterns` | GET | Detection patterns |
-| `/api/health` | GET | Health check |
-| `/api/upload` | POST | File upload scanning |
-
----
-
-## Local LLM Mode Toggle
-
-The dashboard has a toggle switch for handling sensitive data:
-
-### BLOCK Mode
-- Sensitive requests are rejected with an error
-- User sees what was detected
-- Suggested to remove sensitive data
-
-### MOCK Mode
-- Simulates local LLM response
-- Shows what would happen with on-premise AI
-- Data marked as "stayed local"
+| Regulation | Status |
+|------------|--------|
+| SEBI AI/ML Guidelines 2025 | Compliant |
+| SEBI PIT Regulations 2015 | Compliant |
+| RBI Data Localization | Compliant |
+| DPDPA 2023 | Compliant |
 
 ---
 
 ## Test Examples
 
-Try these in the chat interface:
-
-**1. Aadhaar Detection:**
+**Blocked (Aadhaar):**
 ```
-My Aadhaar is 2345 6789 0123, please help
+My Aadhaar is 2345 6789 0123
 ```
 
-**2. PAN Detection:**
+**Blocked (PAN):**
 ```
-Process PAN ABCDE1234F for tax
-```
-
-**3. API Key Detection:**
-```
-api_key = "sk-abc123xyz456789012345678901234567890"
+PAN number ABCDE1234F
 ```
 
-**4. Database String:**
+**Allowed (Clean):**
 ```
-mysql://admin:pass@db.internal.com/prod
-```
-
-**5. Blocked Keywords:**
-```
-This confidential document about trading algorithm
-```
-
-**6. Clean Query (Should Pass):**
-```
-What is machine learning?
+What are the latest fintech trends?
 ```
 
 ---
 
-## File Structure
+## Repository Structure
 
 ```
-G:\AI-Gateway-POC\
-├── main.py           # FastAPI application
-├── config.json       # Configuration
-├── admin.html        # Dashboard UI
-├── requirements.txt  # Python dependencies
-├── README.md         # This file
-└── gateway_logs.db   # SQLite logs (auto-created)
-```
-
----
-
-## Configuration Options
-
-### config.json
-
-```json
-{
-  "active_provider": "openai",        // or "claude"
-  "local_llm_mode": "mock",           // or "block"
-
-  "file_size_limits": {
-    "max_content_size_mb": 1
-  },
-
-  "blocked_keywords": [
-    "confidential",
-    "internal only",
-    ...
-  ],
-
-  "rate_limiting": {
-    "enabled": true,
-    "requests_per_minute": 20
-  }
-}
+AI-Gateway-POC/
+├── main.py                 # FastAPI application
+├── admin.html              # Admin dashboard
+├── auth.py                 # Authentication module
+├── qradar.py               # SIEM integration
+├── config.json             # Configuration
+├── Dockerfile              # Container image
+├── docker-compose.yml      # Full stack deployment
+├── scripts/                # VM installation scripts
+├── nginx/                  # Production NGINX config
+└── *.md                    # Documentation
 ```
 
 ---
 
-## Production Considerations
-
-This POC demonstrates the concept. For production:
-
-1. **Local LLM**: Replace mock with actual Ollama/vLLM
-2. **Authentication**: Add AD/LDAP integration
-3. **Database**: Use PostgreSQL instead of SQLite
-4. **Alerts**: Configure email/Slack notifications
-5. **HTTPS**: Add SSL certificate
-6. **Load Balancing**: Deploy behind nginx
-
----
-
-## Troubleshooting
-
-### "API key not configured"
-Edit `config.json` and add your OpenAI/Claude API key.
-
-### Port 8000 already in use
-```bash
-uvicorn main:app --port 8001
-```
-
-### Module not found
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## Demo Script
-
-For presenting to stakeholders:
-
-1. Open Dashboard → Show stats (all zeros initially)
-2. Go to "Test Chat" → Send clean query → Shows external API response
-3. Send Aadhaar number → Shows BLOCKED (if in block mode)
-4. Toggle to MOCK mode → Send Aadhaar → Shows local LLM simulation
-5. Go to "Logs" → Show all captured requests
-6. Go to "Scan Tester" → Paste code with API keys → Show detection
-7. Go to "Patterns" → Show all 15+ patterns being detected
-
----
-
-## Support
-
-For issues or questions, contact the development team.
-
-**Version:** 1.0.0 (POC)
-**Date:** February 2026
+**Go-Live Target:** February 9, 2026
+**Version:** 1.0 (POC)
