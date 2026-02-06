@@ -1,5 +1,29 @@
+# AI Gateway - Python Dependencies
+# Motilal Oswal Financial Services Ltd.
+
+# Core Framework
 fastapi>=0.115.0
-uvicorn>=0.32.0
-httpx>=0.28.0
+uvicorn[standard]>=0.32.0
 pydantic>=2.10.0
+
+# HTTP Client
+httpx>=0.28.0
+
+# File Uploads
 python-multipart>=0.0.18
+
+# Authentication (optional - uncomment for production)
+# python3-saml>=1.16.0  # For SAML 2.0
+# ldap3>=2.9.1          # For LDAP/AD
+# authlib>=1.3.0        # For OAuth 2.0
+
+# Database (optional - uncomment for SQL Server)
+# pyodbc>=5.0.0         # SQL Server driver
+# sqlalchemy>=2.0.0     # ORM
+
+# Security
+python-jose[cryptography]>=3.3.0  # JWT handling
+
+# Performance (optional)
+# orjson>=3.9.0         # Fast JSON
+# uvloop>=0.19.0        # Fast event loop (Linux only)
