@@ -46,11 +46,11 @@ def init_secrets_manager(
 
     try:
         if provider == "local":
-            from secrets.local_vault import LocalVaultManager
+            from kms_providers.local_vault import LocalVaultManager
             _secrets_manager = LocalVaultManager(vault_path=vault_path)
 
         elif provider == "aws":
-            from secrets.aws_kms import AWSKMSManager
+            from kms_providers.aws_kms import AWSKMSManager
             _secrets_manager = AWSKMSManager(region=region)
 
         elif provider == "azure":
@@ -59,11 +59,11 @@ def init_secrets_manager(
             if not vault_url:
                 print("Warning: AZURE_KEYVAULT_URL not set")
                 return False
-            from secrets.azure_vault import AzureKeyVaultManager
+            from kms_providers.azure_vault import AzureKeyVaultManager
             _secrets_manager = AzureKeyVaultManager(vault_url=vault_url)
 
         elif provider == "hashicorp":
-            from secrets.hashicorp import HashiCorpVaultManager
+            from kms_providers.hashicorp import HashiCorpVaultManager
             _secrets_manager = HashiCorpVaultManager()
 
         else:
