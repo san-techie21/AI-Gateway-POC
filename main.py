@@ -65,6 +65,37 @@ except ImportError as e:
     print(f"Warning: Telemetry module not available: {e}")
     TELEMETRY_AVAILABLE = False
 
+# Import KMS/Secrets module for secure API key storage
+try:
+    from secrets_integration import SecretsManager
+    secrets_manager = SecretsManager()
+    KMS_AVAILABLE = True
+    print(f"KMS initialized with provider: {secrets_manager.provider_name}")
+except ImportError as e:
+    print(f"Warning: KMS module not available: {e}")
+    secrets_manager = None
+    KMS_AVAILABLE = False
+
+# ============== KMS HELPER FUNCTIONS ==============
+
+def get_provider_api_key(provider_name: str) -> str:
+    """Get API key from KMS or fallback to config."""
+    if KMS_AVAILABLE and secrets_manager:
+        key_name = f"provider_{provider_name}_api_key"
+        secret = secrets_manager.get_secret(key_name)
+        if secret:
+            return secret
+    # Fallback to config.json
+    config = load_config()
+    return config.get("providers", {}).get(provider_name, {}).get("api_key", "")
+
+def set_provider_api_key(provider_name: str, api_key: str) -> bool:
+    """Store API key in KMS."""
+    if KMS_AVAILABLE and secrets_manager:
+        key_name = f"provider_{provider_name}_api_key"
+        return secrets_manager.set_secret(key_name, api_key)
+    return False
+
 # ============== APP SETUP ==============
 
 app = FastAPI(
@@ -899,12 +930,14 @@ async def call_external_api(messages: list, config: dict, override_provider: str
     if not provider_config:
         return {"success": False, "error": f"Provider '{provider}' not found in configuration"}
 
-    api_key = provider_config.get("api_key", "")
+    # Get API key from KMS or config (KMS takes priority)
+    api_key = get_provider_api_key(provider)
 
-    if not api_key or api_key.startswith("YOUR_"):
+    if not api_key or api_key.startswith("YOUR_") or api_key == "KMS_STORED":
+        # If KMS_STORED but couldn't retrieve, KMS may have issue
         return {
             "success": False,
-            "error": f"API key not configured for {provider_config.get('name', provider)}. Please update config.json"
+            "error": f"API key not configured for {provider_config.get('name', provider)}. Please configure in Settings."
         }
 
     async with httpx.AsyncClient(timeout=120.0) as client:
@@ -1476,8 +1509,18 @@ async def update_provider(update: ProviderUpdate):
     if update.provider not in config.get("providers", {}):
         return JSONResponse(status_code=404, content={"error": f"Provider '{update.provider}' not found"})
 
+    kms_stored = False
     if update.api_key:
-        config["providers"][update.provider]["api_key"] = update.api_key
+        # Try to store in KMS first (secure storage)
+        if set_provider_api_key(update.provider, update.api_key):
+            # Mark as KMS-stored in config (don't store actual key)
+            config["providers"][update.provider]["api_key"] = "KMS_STORED"
+            config["providers"][update.provider]["kms_enabled"] = True
+            kms_stored = True
+        else:
+            # Fallback to config.json if KMS not available
+            config["providers"][update.provider]["api_key"] = update.api_key
+            config["providers"][update.provider]["kms_enabled"] = False
 
     if update.enabled is not None:
         config["providers"][update.provider]["enabled"] = update.enabled
@@ -1486,7 +1529,12 @@ async def update_provider(update: ProviderUpdate):
         config["providers"][update.provider]["default_model"] = update.default_model
 
     save_config(config)
-    return {"status": "updated", "provider": update.provider}
+    return {
+        "status": "updated",
+        "provider": update.provider,
+        "kms_stored": kms_stored,
+        "storage": "kms" if kms_stored else "config"
+    }
 
 @app.post("/api/providers/set-active")
 async def set_active_provider(provider: str):
@@ -1787,6 +1835,9 @@ async def health_check():
     providers = config.get("providers", {})
     configured_count = sum(1 for p in providers.values() if p.get("api_key") and not p["api_key"].startswith("YOUR_"))
 
+    # Count KMS-stored keys
+    kms_count = sum(1 for p in providers.values() if p.get("kms_enabled"))
+
     return {
         "status": "healthy",
         "timestamp": now_ist().isoformat(),
@@ -1794,7 +1845,31 @@ async def health_check():
         "active_provider": config.get("active_provider"),
         "local_llm_mode": config.get("local_llm_mode"),
         "configured_providers": configured_count,
+        "kms_stored_keys": kms_count,
+        "kms_available": KMS_AVAILABLE,
         "total_providers": len(providers)
+    }
+
+@app.get("/api/kms/status")
+async def kms_status():
+    """Get KMS/Secrets Manager status."""
+    if not KMS_AVAILABLE or not secrets_manager:
+        return {
+            "available": False,
+            "provider": None,
+            "message": "KMS module not loaded"
+        }
+
+    config = load_config()
+    providers = config.get("providers", {})
+    kms_keys = [p for p, v in providers.items() if v.get("kms_enabled")]
+
+    return {
+        "available": True,
+        "provider": secrets_manager.provider_name,
+        "secrets_count": len(kms_keys),
+        "kms_enabled_providers": kms_keys,
+        "supported_providers": ["local", "aws", "azure", "hashicorp"]
     }
 
 # ============== FILE UPLOAD ==============
