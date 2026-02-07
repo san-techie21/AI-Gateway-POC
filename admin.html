@@ -1431,6 +1431,10 @@
                 <i class="fas fa-fingerprint"></i>
                 <span>Detection Patterns</span>
             </div>
+            <div class="nav-item" data-page="usage">
+                <i class="fas fa-chart-bar"></i>
+                <span>Usage & Telemetry</span>
+            </div>
         </nav>
 
         <nav class="nav-section">
@@ -2349,6 +2353,127 @@ buyback"></textarea>
             </div>
         </section>
 
+        <!-- Usage & Telemetry Page -->
+        <section class="page-section" id="page-usage">
+            <div class="header">
+                <div>
+                    <h1 class="page-title">Usage & Telemetry</h1>
+                    <p class="page-subtitle">Track token usage, costs, and API consumption</p>
+                </div>
+                <div class="header-actions">
+                    <select id="usagePeriod" class="setting-input" style="width: auto; margin-right: 10px;" onchange="loadUsageData()">
+                        <option value="7">Last 7 Days</option>
+                        <option value="30" selected>Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                    </select>
+                    <button class="btn btn-secondary" onclick="loadUsageData()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Usage Summary Cards -->
+            <div class="stats-grid" style="margin-bottom: 24px;">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--gradient-1);">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="usageTotalTokens">0</span>
+                        <span class="stat-label">Total Tokens</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--gradient-3);">
+                        <i class="fas fa-rupee-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="usageTotalCost">₹0</span>
+                        <span class="stat-label">Total Cost (INR)</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--gradient-4);">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="usageTotalRequests">0</span>
+                        <span class="stat-label">Total Requests</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--gradient-2);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="usageUniqueUsers">0</span>
+                        <span class="stat-label">Unique Users</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usage Tables -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                <!-- Top Users -->
+                <div class="card">
+                    <h3 style="margin-bottom: 16px;"><i class="fas fa-user-tie" style="margin-right: 8px; color: var(--mo-blue);"></i> Top Users by Token Usage</h3>
+                    <table class="log-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Requests</th>
+                                <th>Tokens</th>
+                                <th>Cost (INR)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topUsersTable">
+                            <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Top Providers -->
+                <div class="card">
+                    <h3 style="margin-bottom: 16px;"><i class="fas fa-robot" style="margin-right: 8px; color: var(--mo-blue);"></i> Usage by API Provider</h3>
+                    <table class="log-table">
+                        <thead>
+                            <tr>
+                                <th>Provider</th>
+                                <th>Requests</th>
+                                <th>Tokens</th>
+                                <th>Cost (INR)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topProvidersTable">
+                            <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Usage Records -->
+            <div class="card">
+                <h3 style="margin-bottom: 16px;"><i class="fas fa-history" style="margin-right: 8px; color: var(--mo-blue);"></i> Recent Token Usage</h3>
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>User</th>
+                            <th>Provider</th>
+                            <th>Model</th>
+                            <th>Input</th>
+                            <th>Output</th>
+                            <th>Total</th>
+                            <th>Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentUsageTable">
+                        <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <!-- Settings Page -->
         <section class="page-section" id="page-settings">
             <div class="header">
@@ -2463,6 +2588,7 @@ buyback"></textarea>
             if (page === 'settings') loadSettings();
             if (page === 'dashboard') refreshStats();
             if (page === 'config') loadConfigFromStorage();
+            if (page === 'usage') loadUsageData();
         }
 
         // Config Tabs
@@ -3062,6 +3188,114 @@ buyback"></textarea>
             } catch (e) {
                 console.error('Failed to load patterns', e);
             }
+        }
+
+        // Usage & Telemetry
+        async function loadUsageData() {
+            const days = document.getElementById('usagePeriod')?.value || 30;
+
+            try {
+                // Load overview stats
+                const overviewRes = await fetch(`${API_URL}/api/telemetry/overview?days=${days}`);
+                if (overviewRes.ok) {
+                    const data = await overviewRes.json();
+
+                    // Update summary cards
+                    const totals = data.totals || {};
+                    document.getElementById('usageTotalTokens').textContent = formatNumber(totals.total_tokens || 0);
+                    document.getElementById('usageTotalCost').textContent = '₹' + (totals.total_cost_inr || 0).toFixed(2);
+                    document.getElementById('usageTotalRequests').textContent = formatNumber(totals.total_requests || 0);
+                    document.getElementById('usageUniqueUsers').textContent = totals.unique_users || 0;
+
+                    // Top Users Table
+                    const usersTable = document.getElementById('topUsersTable');
+                    if (data.top_users && data.top_users.length > 0) {
+                        usersTable.innerHTML = data.top_users.map(u => `
+                            <tr>
+                                <td><strong>${u.user_id || 'anonymous'}</strong></td>
+                                <td>${formatNumber(u.requests || 0)}</td>
+                                <td>${formatNumber(u.tokens || 0)}</td>
+                                <td>₹${(u.cost_inr || 0).toFixed(2)}</td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        usersTable.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No usage data yet</td></tr>';
+                    }
+
+                    // Top Providers Table
+                    const providersTable = document.getElementById('topProvidersTable');
+                    if (data.top_providers && data.top_providers.length > 0) {
+                        providersTable.innerHTML = data.top_providers.map(p => `
+                            <tr>
+                                <td><strong>${getProviderName(p.provider)}</strong></td>
+                                <td>${formatNumber(p.requests || 0)}</td>
+                                <td>${formatNumber(p.tokens || 0)}</td>
+                                <td>₹${(p.cost_inr || 0).toFixed(2)}</td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        providersTable.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No usage data yet</td></tr>';
+                    }
+                }
+
+                // Load recent usage records
+                const recentRes = await fetch(`${API_URL}/api/telemetry/recent?limit=20`);
+                if (recentRes.ok) {
+                    const recentData = await recentRes.json();
+                    const recentTable = document.getElementById('recentUsageTable');
+
+                    if (recentData.records && recentData.records.length > 0) {
+                        recentTable.innerHTML = recentData.records.map(r => {
+                            const time = new Date(r.timestamp).toLocaleString('en-IN', {
+                                day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                            });
+                            return `
+                                <tr>
+                                    <td>${time}</td>
+                                    <td>${r.user_id || 'anonymous'}</td>
+                                    <td>${getProviderName(r.provider)}</td>
+                                    <td style="font-size: 11px;">${r.model || '-'}</td>
+                                    <td>${formatNumber(r.input_tokens || 0)}</td>
+                                    <td>${formatNumber(r.output_tokens || 0)}</td>
+                                    <td><strong>${formatNumber(r.total_tokens || 0)}</strong></td>
+                                    <td>₹${(r.cost_inr || 0).toFixed(4)}</td>
+                                </tr>
+                            `;
+                        }).join('');
+                    } else {
+                        recentTable.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">No usage records yet</td></tr>';
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to load usage data', e);
+            }
+        }
+
+        function getProviderName(provider) {
+            const names = {
+                'openai': 'OpenAI',
+                'claude': 'Anthropic Claude',
+                'gemini': 'Google Gemini',
+                'deepseek': 'DeepSeek',
+                'mistral': 'Mistral AI',
+                'grok': 'xAI Grok',
+                'groq': 'Groq',
+                'azure_openai': 'Azure OpenAI',
+                'aws_bedrock': 'AWS Bedrock',
+                'ollama': 'Ollama (Local)',
+                'local_llm_simulated': 'Local LLM',
+                'none': 'Blocked',
+                'together': 'Together AI',
+                'fireworks': 'Fireworks AI',
+                'perplexity': 'Perplexity'
+            };
+            return names[provider] || provider;
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
         }
 
         // Settings

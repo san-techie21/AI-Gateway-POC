@@ -242,6 +242,164 @@ Health check endpoint.
 
 ---
 
+### Telemetry & Usage
+
+#### GET /api/telemetry/overview
+
+Get overall usage statistics across all users and providers.
+
+**Parameters:**
+| Name | Type | Description |
+|------|------|-------------|
+| days | int | Period in days (default: 30) |
+
+**Response:**
+```json
+{
+  "period_days": 30,
+  "generated_at": "2026-02-07T15:30:00+05:30",
+  "totals": {
+    "total_requests": 1250,
+    "total_input_tokens": 450000,
+    "total_output_tokens": 180000,
+    "total_tokens": 630000,
+    "total_cost_usd": 12.50,
+    "total_cost_inr": 1043.75,
+    "unique_users": 45,
+    "providers_used": 4
+  },
+  "top_users": [
+    {"user_id": "analyst01", "requests": 150, "tokens": 75000, "cost_inr": 125.50}
+  ],
+  "top_providers": [
+    {"provider": "azure_openai", "requests": 800, "tokens": 400000, "cost_inr": 650.00}
+  ],
+  "daily_trend": [
+    {"date": "2026-02-06", "requests": 45, "tokens": 22500, "cost_inr": 35.25}
+  ]
+}
+```
+
+#### GET /api/telemetry/user/{user_id}
+
+Get usage statistics for a specific user.
+
+**Parameters:**
+| Name | Type | Description |
+|------|------|-------------|
+| user_id | string | User ID (path parameter) |
+| days | int | Period in days (default: 30) |
+
+**Response:**
+```json
+{
+  "user_id": "analyst01",
+  "period_days": 30,
+  "total": {
+    "total_requests": 150,
+    "total_input_tokens": 50000,
+    "total_output_tokens": 25000,
+    "total_tokens": 75000,
+    "total_cost_usd": 1.50,
+    "total_cost_inr": 125.25
+  },
+  "by_provider": [
+    {"provider": "azure_openai", "requests": 120, "tokens": 60000, "cost_inr": 100.00}
+  ],
+  "daily_trend": [
+    {"date": "2026-02-06", "requests": 8, "tokens": 4000, "cost_inr": 6.65}
+  ]
+}
+```
+
+#### GET /api/telemetry/providers
+
+Get usage statistics grouped by AI provider.
+
+**Parameters:**
+| Name | Type | Description |
+|------|------|-------------|
+| days | int | Period in days (default: 30) |
+
+**Response:**
+```json
+{
+  "period_days": 30,
+  "totals": {
+    "total_requests": 1250,
+    "total_tokens": 630000,
+    "total_cost_usd": 12.50,
+    "total_cost_inr": 1043.75
+  },
+  "by_provider": [
+    {
+      "provider": "azure_openai",
+      "total_requests": 800,
+      "input_tokens": 300000,
+      "output_tokens": 100000,
+      "total_tokens": 400000,
+      "cost_usd": 8.00,
+      "cost_inr": 668.00,
+      "unique_users": 35
+    }
+  ]
+}
+```
+
+#### GET /api/telemetry/recent
+
+Get recent token usage records.
+
+**Parameters:**
+| Name | Type | Description |
+|------|------|-------------|
+| limit | int | Max records (default: 50) |
+
+**Response:**
+```json
+{
+  "records": [
+    {
+      "id": 125,
+      "request_id": "req_abc123",
+      "timestamp": "2026-02-07T15:25:30+05:30",
+      "user_id": "analyst01",
+      "user_role": "research",
+      "provider": "azure_openai",
+      "model": "gpt-4o",
+      "input_tokens": 250,
+      "output_tokens": 180,
+      "total_tokens": 430,
+      "cost_usd": 0.0032,
+      "cost_inr": 0.27,
+      "request_type": "chat",
+      "response_time_ms": 1250
+    }
+  ],
+  "total": 50
+}
+```
+
+#### GET /api/telemetry/costs
+
+Get provider cost rates.
+
+**Response:**
+```json
+{
+  "cost_rates": {
+    "azure_openai": {"input": 2.50, "output": 10.00, "currency": "USD"},
+    "aws_bedrock": {"input": 3.00, "output": 15.00, "currency": "USD"},
+    "deepseek": {"input": 0.14, "output": 0.28, "currency": "USD"},
+    "gemini": {"input": 0.075, "output": 0.30, "currency": "USD"}
+  },
+  "usd_to_inr": 83.50,
+  "note": "Costs are per 1 million tokens"
+}
+```
+
+---
+
 ## Error Codes
 
 | Code | Description |
@@ -290,5 +448,5 @@ Configure webhooks in Admin Console > Configuration > Integrations.
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** February 6, 2026
+**Document Version:** 1.1
+**Last Updated:** February 7, 2026

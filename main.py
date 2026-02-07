@@ -54,6 +54,17 @@ except ImportError as e:
     print(f"Warning: Auth/QRadar modules not fully available: {e}")
     AUTH_MODULES_AVAILABLE = False
 
+# Import telemetry module
+try:
+    from telemetry import (
+        log_token_usage, get_user_usage, get_provider_usage,
+        get_overall_stats, get_recent_usage, PROVIDER_COSTS
+    )
+    TELEMETRY_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Telemetry module not available: {e}")
+    TELEMETRY_AVAILABLE = False
+
 # ============== APP SETUP ==============
 
 app = FastAPI(
@@ -1299,6 +1310,18 @@ async def chat(request: ChatRequest):
                     detections=scan_result["detections"]
                 )
 
+            # Log token usage (input only, no output for blocked)
+            if TELEMETRY_AVAILABLE:
+                log_token_usage(
+                    request_id=request_id,
+                    user_id=request.user_id,
+                    provider="none",
+                    input_text=full_content,
+                    output_text="",
+                    request_type="blocked",
+                    response_time_ms=processing_time
+                )
+
             return JSONResponse(
                 status_code=200,
                 content={
@@ -1335,11 +1358,25 @@ async def chat(request: ChatRequest):
                     detections=scan_result["detections"]
                 )
 
+            # Log token usage for local LLM
+            token_stats = None
+            if TELEMETRY_AVAILABLE:
+                token_stats = log_token_usage(
+                    request_id=request_id,
+                    user_id=request.user_id,
+                    provider="local_llm_simulated",
+                    input_text=full_content,
+                    output_text=mock_response,
+                    request_type="local_llm",
+                    response_time_ms=processing_time
+                )
+
             return {
                 "request_id": request_id,
                 "status": "ROUTED_TO_LOCAL_LLM",
                 "response": mock_response,
-                "data_stayed_local": True
+                "data_stayed_local": True,
+                "usage": token_stats
             }
     else:
         # Clean content - route to external API
@@ -1370,12 +1407,27 @@ async def chat(request: ChatRequest):
                     content=full_content
                 )
 
+            # Log token usage for telemetry
+            token_stats = None
+            if TELEMETRY_AVAILABLE:
+                token_stats = log_token_usage(
+                    request_id=request_id,
+                    user_id=request.user_id,
+                    provider=api_result["provider"],
+                    input_text=full_content,
+                    output_text=api_result["content"],
+                    model=api_result.get("model", ""),
+                    request_type="chat",
+                    response_time_ms=processing_time
+                )
+
             return {
                 "request_id": request_id,
                 "status": "ALLOWED",
                 "provider": api_result["provider"],
                 "model": api_result.get("model"),
-                "response": api_result["content"]
+                "response": api_result["content"],
+                "usage": token_stats
             }
         else:
             return JSONResponse(
@@ -1673,6 +1725,58 @@ async def get_violation_count(since_minutes: int = 60):
 async def get_patterns():
     """Get all detection patterns."""
     return {"patterns": DETECTION_PATTERNS, "count": len(DETECTION_PATTERNS)}
+
+# ============== TELEMETRY ENDPOINTS ==============
+
+@app.get("/api/telemetry/overview")
+async def telemetry_overview(days: int = 30):
+    """Get overall telemetry statistics."""
+    if not TELEMETRY_AVAILABLE:
+        return JSONResponse(
+            status_code=503,
+            content={"error": "Telemetry module not available"}
+        )
+    return get_overall_stats(days)
+
+@app.get("/api/telemetry/user/{user_id}")
+async def telemetry_user(user_id: str, days: int = 30):
+    """Get usage statistics for a specific user."""
+    if not TELEMETRY_AVAILABLE:
+        return JSONResponse(
+            status_code=503,
+            content={"error": "Telemetry module not available"}
+        )
+    return get_user_usage(user_id, days)
+
+@app.get("/api/telemetry/providers")
+async def telemetry_providers(days: int = 30):
+    """Get usage statistics by provider."""
+    if not TELEMETRY_AVAILABLE:
+        return JSONResponse(
+            status_code=503,
+            content={"error": "Telemetry module not available"}
+        )
+    return get_provider_usage(days)
+
+@app.get("/api/telemetry/recent")
+async def telemetry_recent(limit: int = 50):
+    """Get recent token usage records."""
+    if not TELEMETRY_AVAILABLE:
+        return JSONResponse(
+            status_code=503,
+            content={"error": "Telemetry module not available"}
+        )
+    return {"records": get_recent_usage(limit)}
+
+@app.get("/api/telemetry/costs")
+async def telemetry_costs():
+    """Get provider cost rates."""
+    if not TELEMETRY_AVAILABLE:
+        return JSONResponse(
+            status_code=503,
+            content={"error": "Telemetry module not available"}
+        )
+    return {"costs": PROVIDER_COSTS}
 
 @app.get("/api/health")
 async def health_check():
