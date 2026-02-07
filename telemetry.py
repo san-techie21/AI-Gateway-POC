@@ -117,9 +117,6 @@ PROVIDER_COSTS = {
     "none": {"input": 0.00, "output": 0.00, "currency": "USD"},
 }
 
-# Default USD to INR conversion rate
-USD_TO_INR = 83.50
-
 DB_FILE = "gateway_logs.db"
 
 
@@ -141,7 +138,6 @@ def init_telemetry_db():
             output_tokens INTEGER DEFAULT 0,
             total_tokens INTEGER DEFAULT 0,
             cost_usd REAL DEFAULT 0.0,
-            cost_inr REAL DEFAULT 0.0,
             request_type TEXT,
             response_time_ms INTEGER
         )
@@ -159,7 +155,6 @@ def init_telemetry_db():
             total_output_tokens INTEGER DEFAULT 0,
             total_tokens INTEGER DEFAULT 0,
             total_cost_usd REAL DEFAULT 0.0,
-            total_cost_inr REAL DEFAULT 0.0,
             UNIQUE(date, user_id, provider)
         )
     """)
@@ -185,20 +180,16 @@ def estimate_tokens(text: str) -> int:
     return max(1, len(text) // 4)
 
 
-def calculate_cost(provider: str, input_tokens: int, output_tokens: int) -> Dict[str, float]:
-    """Calculate cost based on provider and token counts."""
+def calculate_cost(provider: str, input_tokens: int, output_tokens: int) -> float:
+    """Calculate cost in USD based on provider and token counts."""
     costs = PROVIDER_COSTS.get(provider, {"input": 0, "output": 0})
 
     # Cost per 1M tokens -> per token
     input_cost = (input_tokens / 1_000_000) * costs["input"]
     output_cost = (output_tokens / 1_000_000) * costs["output"]
     total_usd = input_cost + output_cost
-    total_inr = total_usd * USD_TO_INR
 
-    return {
-        "cost_usd": round(total_usd, 6),
-        "cost_inr": round(total_inr, 4)
-    }
+    return round(total_usd, 6)
 
 
 def log_token_usage(
@@ -220,7 +211,7 @@ def log_token_usage(
     output_tokens = estimate_tokens(output_text)
     total_tokens = input_tokens + output_tokens
 
-    cost = calculate_cost(provider, input_tokens, output_tokens)
+    cost_usd = calculate_cost(provider, input_tokens, output_tokens)
 
     timestamp = now_ist()
     date_str = timestamp.strftime("%Y-%m-%d")
@@ -231,12 +222,12 @@ def log_token_usage(
     conn.execute("""
         INSERT INTO token_usage
         (request_id, timestamp, user_id, user_role, provider, model,
-         input_tokens, output_tokens, total_tokens, cost_usd, cost_inr,
+         input_tokens, output_tokens, total_tokens, cost_usd,
          request_type, response_time_ms)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         request_id, timestamp.isoformat(), user_id, user_role, provider, model,
-        input_tokens, output_tokens, total_tokens, cost["cost_usd"], cost["cost_inr"],
+        input_tokens, output_tokens, total_tokens, cost_usd,
         request_type, response_time_ms
     ))
 
@@ -244,18 +235,17 @@ def log_token_usage(
     conn.execute("""
         INSERT INTO daily_usage_summary
         (date, user_id, provider, total_requests, total_input_tokens,
-         total_output_tokens, total_tokens, total_cost_usd, total_cost_inr)
-        VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?)
+         total_output_tokens, total_tokens, total_cost_usd)
+        VALUES (?, ?, ?, 1, ?, ?, ?, ?)
         ON CONFLICT(date, user_id, provider) DO UPDATE SET
             total_requests = total_requests + 1,
             total_input_tokens = total_input_tokens + excluded.total_input_tokens,
             total_output_tokens = total_output_tokens + excluded.total_output_tokens,
             total_tokens = total_tokens + excluded.total_tokens,
-            total_cost_usd = total_cost_usd + excluded.total_cost_usd,
-            total_cost_inr = total_cost_inr + excluded.total_cost_inr
+            total_cost_usd = total_cost_usd + excluded.total_cost_usd
     """, (
         date_str, user_id, provider, input_tokens, output_tokens,
-        total_tokens, cost["cost_usd"], cost["cost_inr"]
+        total_tokens, cost_usd
     ))
 
     conn.commit()
@@ -265,8 +255,7 @@ def log_token_usage(
         "input_tokens": input_tokens,
         "output_tokens": output_tokens,
         "total_tokens": total_tokens,
-        "cost_usd": cost["cost_usd"],
-        "cost_inr": cost["cost_inr"]
+        "cost_usd": cost_usd
     }
 
 
@@ -284,8 +273,7 @@ def get_user_usage(user_id: str, days: int = 30) -> Dict[str, Any]:
             SUM(total_input_tokens) as total_input_tokens,
             SUM(total_output_tokens) as total_output_tokens,
             SUM(total_tokens) as total_tokens,
-            SUM(total_cost_usd) as total_cost_usd,
-            SUM(total_cost_inr) as total_cost_inr
+            SUM(total_cost_usd) as total_cost_usd
         FROM daily_usage_summary
         WHERE user_id = ? AND date >= ?
     """, (user_id, cutoff))
@@ -298,8 +286,7 @@ def get_user_usage(user_id: str, days: int = 30) -> Dict[str, Any]:
             provider,
             SUM(total_requests) as requests,
             SUM(total_tokens) as tokens,
-            SUM(total_cost_usd) as cost_usd,
-            SUM(total_cost_inr) as cost_inr
+            SUM(total_cost_usd) as cost_usd
         FROM daily_usage_summary
         WHERE user_id = ? AND date >= ?
         GROUP BY provider
@@ -314,7 +301,7 @@ def get_user_usage(user_id: str, days: int = 30) -> Dict[str, Any]:
             date,
             SUM(total_requests) as requests,
             SUM(total_tokens) as tokens,
-            SUM(total_cost_inr) as cost_inr
+            SUM(total_cost_usd) as cost_usd
         FROM daily_usage_summary
         WHERE user_id = ? AND date >= ?
         GROUP BY date
@@ -350,7 +337,6 @@ def get_provider_usage(days: int = 30) -> Dict[str, Any]:
             SUM(total_output_tokens) as output_tokens,
             SUM(total_tokens) as total_tokens,
             SUM(total_cost_usd) as cost_usd,
-            SUM(total_cost_inr) as cost_inr,
             COUNT(DISTINCT user_id) as unique_users
         FROM daily_usage_summary
         WHERE date >= ?
@@ -365,8 +351,7 @@ def get_provider_usage(days: int = 30) -> Dict[str, Any]:
         SELECT
             SUM(total_requests) as total_requests,
             SUM(total_tokens) as total_tokens,
-            SUM(total_cost_usd) as total_cost_usd,
-            SUM(total_cost_inr) as total_cost_inr
+            SUM(total_cost_usd) as total_cost_usd
         FROM daily_usage_summary
         WHERE date >= ?
     """, (cutoff,))
@@ -397,7 +382,6 @@ def get_overall_stats(days: int = 30) -> Dict[str, Any]:
             SUM(total_output_tokens) as total_output_tokens,
             SUM(total_tokens) as total_tokens,
             SUM(total_cost_usd) as total_cost_usd,
-            SUM(total_cost_inr) as total_cost_inr,
             COUNT(DISTINCT user_id) as unique_users,
             COUNT(DISTINCT provider) as providers_used
         FROM daily_usage_summary
@@ -412,7 +396,7 @@ def get_overall_stats(days: int = 30) -> Dict[str, Any]:
             user_id,
             SUM(total_requests) as requests,
             SUM(total_tokens) as tokens,
-            SUM(total_cost_inr) as cost_inr
+            SUM(total_cost_usd) as cost_usd
         FROM daily_usage_summary
         WHERE date >= ?
         GROUP BY user_id
@@ -428,7 +412,7 @@ def get_overall_stats(days: int = 30) -> Dict[str, Any]:
             provider,
             SUM(total_requests) as requests,
             SUM(total_tokens) as tokens,
-            SUM(total_cost_inr) as cost_inr
+            SUM(total_cost_usd) as cost_usd
         FROM daily_usage_summary
         WHERE date >= ?
         GROUP BY provider
@@ -444,7 +428,7 @@ def get_overall_stats(days: int = 30) -> Dict[str, Any]:
             date,
             SUM(total_requests) as requests,
             SUM(total_tokens) as tokens,
-            SUM(total_cost_inr) as cost_inr
+            SUM(total_cost_usd) as cost_usd
         FROM daily_usage_summary
         WHERE date >= ?
         GROUP BY date

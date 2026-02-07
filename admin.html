@@ -2083,13 +2083,13 @@ buyback"></textarea>
 
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title"><i class="fas fa-rupee-sign"></i> Cost Controls</h2>
+                        <h2 class="card-title"><i class="fas fa-dollar-sign"></i> Cost Controls</h2>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Monthly Budget (INR)</label>
-                            <input type="number" class="form-input" id="budgetMonthly" placeholder="500000">
+                            <label class="form-label">Monthly Budget (USD)</label>
+                            <input type="number" class="form-input" id="budgetMonthly" placeholder="5000">
                             <p class="form-hint">Alert when 80% of budget is reached</p>
                         </div>
                         <div class="form-group">
@@ -2385,11 +2385,11 @@ buyback"></textarea>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="background: var(--gradient-3);">
-                        <i class="fas fa-rupee-sign"></i>
+                        <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="stat-info">
-                        <span class="stat-value" id="usageTotalCost">₹0</span>
-                        <span class="stat-label">Total Cost (INR)</span>
+                        <span class="stat-value" id="usageTotalCost">$0</span>
+                        <span class="stat-label">Total Cost (USD)</span>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -2423,7 +2423,7 @@ buyback"></textarea>
                                 <th>User</th>
                                 <th>Requests</th>
                                 <th>Tokens</th>
-                                <th>Cost (INR)</th>
+                                <th>Cost (USD)</th>
                             </tr>
                         </thead>
                         <tbody id="topUsersTable">
@@ -2441,7 +2441,7 @@ buyback"></textarea>
                                 <th>Provider</th>
                                 <th>Requests</th>
                                 <th>Tokens</th>
-                                <th>Cost (INR)</th>
+                                <th>Cost (USD)</th>
                             </tr>
                         </thead>
                         <tbody id="topProvidersTable">
@@ -3203,7 +3203,7 @@ buyback"></textarea>
                     // Update summary cards
                     const totals = data.totals || {};
                     document.getElementById('usageTotalTokens').textContent = formatNumber(totals.total_tokens || 0);
-                    document.getElementById('usageTotalCost').textContent = '₹' + (totals.total_cost_inr || 0).toFixed(2);
+                    document.getElementById('usageTotalCost').textContent = '$' + (totals.total_cost_usd || 0).toFixed(2);
                     document.getElementById('usageTotalRequests').textContent = formatNumber(totals.total_requests || 0);
                     document.getElementById('usageUniqueUsers').textContent = totals.unique_users || 0;
 
@@ -3215,7 +3215,7 @@ buyback"></textarea>
                                 <td><strong>${u.user_id || 'anonymous'}</strong></td>
                                 <td>${formatNumber(u.requests || 0)}</td>
                                 <td>${formatNumber(u.tokens || 0)}</td>
-                                <td>₹${(u.cost_inr || 0).toFixed(2)}</td>
+                                <td>$${(u.cost_usd || 0).toFixed(4)}</td>
                             </tr>
                         `).join('');
                     } else {
@@ -3230,7 +3230,7 @@ buyback"></textarea>
                                 <td><strong>${getProviderName(p.provider)}</strong></td>
                                 <td>${formatNumber(p.requests || 0)}</td>
                                 <td>${formatNumber(p.tokens || 0)}</td>
-                                <td>₹${(p.cost_inr || 0).toFixed(2)}</td>
+                                <td>$${(p.cost_usd || 0).toFixed(4)}</td>
                             </tr>
                         `).join('');
                     } else {
@@ -3258,7 +3258,7 @@ buyback"></textarea>
                                     <td>${formatNumber(r.input_tokens || 0)}</td>
                                     <td>${formatNumber(r.output_tokens || 0)}</td>
                                     <td><strong>${formatNumber(r.total_tokens || 0)}</strong></td>
-                                    <td>₹${(r.cost_inr || 0).toFixed(4)}</td>
+                                    <td>$${(r.cost_usd || 0).toFixed(6)}</td>
                                 </tr>
                             `;
                         }).join('');

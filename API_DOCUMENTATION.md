@@ -264,18 +264,17 @@ Get overall usage statistics across all users and providers.
     "total_output_tokens": 180000,
     "total_tokens": 630000,
     "total_cost_usd": 12.50,
-    "total_cost_inr": 1043.75,
     "unique_users": 45,
     "providers_used": 4
   },
   "top_users": [
-    {"user_id": "analyst01", "requests": 150, "tokens": 75000, "cost_inr": 125.50}
+    {"user_id": "analyst01", "requests": 150, "tokens": 75000, "cost_usd": 1.50}
   ],
   "top_providers": [
-    {"provider": "azure_openai", "requests": 800, "tokens": 400000, "cost_inr": 650.00}
+    {"provider": "azure_openai", "requests": 800, "tokens": 400000, "cost_usd": 8.00}
   ],
   "daily_trend": [
-    {"date": "2026-02-06", "requests": 45, "tokens": 22500, "cost_inr": 35.25}
+    {"date": "2026-02-06", "requests": 45, "tokens": 22500, "cost_usd": 0.45}
   ]
 }
 ```
@@ -300,14 +299,13 @@ Get usage statistics for a specific user.
     "total_input_tokens": 50000,
     "total_output_tokens": 25000,
     "total_tokens": 75000,
-    "total_cost_usd": 1.50,
-    "total_cost_inr": 125.25
+    "total_cost_usd": 1.50
   },
   "by_provider": [
-    {"provider": "azure_openai", "requests": 120, "tokens": 60000, "cost_inr": 100.00}
+    {"provider": "azure_openai", "requests": 120, "tokens": 60000, "cost_usd": 1.20}
   ],
   "daily_trend": [
-    {"date": "2026-02-06", "requests": 8, "tokens": 4000, "cost_inr": 6.65}
+    {"date": "2026-02-06", "requests": 8, "tokens": 4000, "cost_usd": 0.08}
   ]
 }
 ```
@@ -328,8 +326,7 @@ Get usage statistics grouped by AI provider.
   "totals": {
     "total_requests": 1250,
     "total_tokens": 630000,
-    "total_cost_usd": 12.50,
-    "total_cost_inr": 1043.75
+    "total_cost_usd": 12.50
   },
   "by_provider": [
     {
@@ -339,7 +336,6 @@ Get usage statistics grouped by AI provider.
       "output_tokens": 100000,
       "total_tokens": 400000,
       "cost_usd": 8.00,
-      "cost_inr": 668.00,
       "unique_users": 35
     }
   ]
@@ -371,7 +367,6 @@ Get recent token usage records.
       "output_tokens": 180,
       "total_tokens": 430,
       "cost_usd": 0.0032,
-      "cost_inr": 0.27,
       "request_type": "chat",
       "response_time_ms": 1250
     }
@@ -393,8 +388,7 @@ Get provider cost rates.
     "deepseek": {"input": 0.14, "output": 0.28, "currency": "USD"},
     "gemini": {"input": 0.075, "output": 0.30, "currency": "USD"}
   },
-  "usd_to_inr": 83.50,
-  "note": "Costs are per 1 million tokens"
+  "note": "Costs are per 1 million tokens (USD)"
 }
 ```
 
