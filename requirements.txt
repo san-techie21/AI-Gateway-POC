@@ -23,6 +23,7 @@ python-multipart>=0.0.18
 
 # Security
 python-jose[cryptography]>=3.3.0  # JWT handling
+cryptography>=42.0.0              # Fernet encryption for local vault
 
 # Performance (optional)
 # orjson>=3.9.0         # Fast JSON
