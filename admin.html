@@ -1508,6 +1508,22 @@
         </nav>
 
         <nav class="nav-section">
+            <div class="nav-label">Enterprise</div>
+            <div class="nav-item" data-page="registry">
+                <i class="fas fa-robot"></i>
+                <span>Agent Registry</span>
+            </div>
+            <div class="nav-item" data-page="mcp">
+                <i class="fas fa-shield-alt"></i>
+                <span>MCP Gateway</span>
+            </div>
+            <div class="nav-item" data-page="kms">
+                <i class="fas fa-key"></i>
+                <span>Secrets/KMS</span>
+            </div>
+        </nav>
+
+        <nav class="nav-section">
             <div class="nav-label">System</div>
             <div class="nav-item" data-page="settings">
                 <i class="fas fa-cog"></i>
@@ -2562,10 +2578,6 @@ buyback"></textarea>
                 <div class="card">
                     <div class="setting-group">
                         <h3><i class="fas fa-key"></i> API Configuration</h3>
-                        <div id="kmsStatusBadge" style="margin-bottom: 12px; padding: 8px 12px; border-radius: 8px; background: #e8f5e9; border: 1px solid #4caf50; font-size: 12px;">
-                            <i class="fas fa-shield-alt" style="color: #4caf50;"></i>
-                            <span id="kmsStatusText">Checking KMS status...</span>
-                        </div>
                         <div class="setting-row">
                             <span class="setting-label">Active Provider</span>
                             <select class="setting-input" id="settingProvider">
@@ -2603,7 +2615,6 @@ buyback"></textarea>
                         <button class="btn btn-primary" onclick="saveProviderKey()" style="margin-top: 10px;">
                             <i class="fas fa-save"></i> Save API Key
                         </button>
-                        <p id="saveKeyResult" style="font-size: 11px; margin-top: 8px; color: var(--text-muted);"></p>
                     </div>
                 </div>
 
@@ -2629,6 +2640,263 @@ buyback"></textarea>
                         </p>
                         <textarea class="scan-input" id="settingKeywords" style="height: 150px;"
                                   placeholder="confidential&#10;internal only&#10;UPSI"></textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Agent Registry Page -->
+        <section class="page-section" id="page-registry">
+            <div class="header">
+                <div>
+                    <h1 class="page-title">Agent Registry</h1>
+                    <p class="page-subtitle">Manage approved AI agents and models</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="loadAgentRegistry()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="showAddAgentModal()">
+                        <i class="fas fa-plus"></i> Add Agent
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-row" style="margin-bottom: 24px;">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--gradient-4);"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <div class="stat-value" id="registryApproved">0</div>
+                    <div class="stat-label">Approved</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--gradient-3);"><i class="fas fa-clock"></i></div>
+                    </div>
+                    <div class="stat-value" id="registryPending">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--gradient-2);"><i class="fas fa-ban"></i></div>
+                    </div>
+                    <div class="stat-value" id="registryBlocked">0</div>
+                    <div class="stat-label">Blocked</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--gradient-1);"><i class="fas fa-robot"></i></div>
+                    </div>
+                    <div class="stat-value" id="registryTotal">0</div>
+                    <div class="stat-label">Total Agents</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 16px;"><i class="fas fa-list"></i> Registered Agents</h3>
+                <div class="log-table" style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Agent</th>
+                                <th>Provider</th>
+                                <th>Model</th>
+                                <th>Status</th>
+                                <th>Risk Level</th>
+                                <th>Permissions</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="agentRegistryTable">
+                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading agents...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- MCP Gateway Page -->
+        <section class="page-section" id="page-mcp">
+            <div class="header">
+                <div>
+                    <h1 class="page-title">MCP Gateway Security</h1>
+                    <p class="page-subtitle">Control AI agent access to enterprise tools</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="loadMCPData()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-row" style="margin-bottom: 24px;">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--gradient-4);"><i class="fas fa-plug"></i></div>
+                    </div>
+                    <div class="stat-value" id="mcpToolsActive">0</div>
+                    <div class="stat-label">Active Tools</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--gradient-3);"><i class="fas fa-check"></i></div>
+                    </div>
+                    <div class="stat-value" id="mcpAccessAllowed">0</div>
+                    <div class="stat-label">Access Allowed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--gradient-2);"><i class="fas fa-times"></i></div>
+                    </div>
+                    <div class="stat-value" id="mcpAccessDenied">0</div>
+                    <div class="stat-label">Access Denied</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--gradient-1);"><i class="fas fa-hourglass-half"></i></div>
+                    </div>
+                    <div class="stat-value" id="mcpPendingApprovals">0</div>
+                    <div class="stat-label">Pending Approval</div>
+                </div>
+            </div>
+
+            <div class="settings-grid">
+                <div class="card">
+                    <h3 style="margin-bottom: 16px;"><i class="fas fa-plug"></i> Enterprise Tools</h3>
+                    <div class="log-table" style="max-height: 400px; overflow-y: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tool</th>
+                                    <th>Category</th>
+                                    <th>Classification</th>
+                                    <th>Status</th>
+                                    <th>Approval</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mcpToolsTable">
+                                <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Loading tools...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 16px;"><i class="fas fa-clock"></i> Pending Approvals</h3>
+                    <div id="mcpPendingList" style="max-height: 400px; overflow-y: auto;">
+                        <div style="text-align: center; color: var(--text-muted); padding: 40px;">No pending approvals</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 24px;">
+                <h3 style="margin-bottom: 16px;"><i class="fas fa-history"></i> Access Log (Last 20)</h3>
+                <div class="log-table" style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Agent</th>
+                                <th>Tool</th>
+                                <th>Operation</th>
+                                <th>Decision</th>
+                                <th>User</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mcpAccessLogTable">
+                            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading access log...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- KMS/Secrets Page -->
+        <section class="page-section" id="page-kms">
+            <div class="header">
+                <div>
+                    <h1 class="page-title">Secrets Management</h1>
+                    <p class="page-subtitle">Enterprise Key Management System</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="loadKMSHealth()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-row" style="margin-bottom: 24px;">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" id="kmsStatusIcon" style="background: var(--gradient-4);"><i class="fas fa-shield-alt"></i></div>
+                    </div>
+                    <div class="stat-value" id="kmsStatus">--</div>
+                    <div class="stat-label">KMS Status</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--gradient-3);"><i class="fas fa-cloud"></i></div>
+                    </div>
+                    <div class="stat-value" id="kmsProvider">--</div>
+                    <div class="stat-label">Provider</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--gradient-1);"><i class="fas fa-key"></i></div>
+                    </div>
+                    <div class="stat-value" id="kmsSecretsCount">0</div>
+                    <div class="stat-label">Secrets Stored</div>
+                </div>
+            </div>
+
+            <div class="settings-grid">
+                <div class="card">
+                    <h3 style="margin-bottom: 16px;"><i class="fas fa-cog"></i> KMS Configuration</h3>
+                    <div class="setting-group">
+                        <div class="setting-row">
+                            <span class="setting-label">Provider</span>
+                            <select class="setting-input" id="kmsProviderSelect">
+                                <option value="local">Local Encrypted Vault</option>
+                                <option value="aws">AWS Secrets Manager</option>
+                                <option value="azure">Azure Key Vault</option>
+                                <option value="hashicorp">HashiCorp Vault</option>
+                            </select>
+                        </div>
+                        <div class="setting-row" id="kmsVaultUrlRow" style="display: none;">
+                            <span class="setting-label">Vault URL</span>
+                            <input type="text" class="setting-input" id="kmsVaultUrl" placeholder="https://vault.example.com">
+                        </div>
+                        <div class="setting-row" id="kmsRegionRow" style="display: none;">
+                            <span class="setting-label">Region</span>
+                            <input type="text" class="setting-input" id="kmsRegion" value="ap-south-1">
+                        </div>
+                        <button class="btn btn-primary" onclick="initializeKMS()" style="margin-top: 12px;">
+                            <i class="fas fa-play"></i> Initialize KMS
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 16px;"><i class="fas fa-upload"></i> Migration</h3>
+                    <div class="setting-group">
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+                            Migrate API keys from config.json to the secure vault. This is a one-time operation.
+                        </p>
+                        <button class="btn btn-secondary" onclick="migrateToVault()" id="migrateBtn">
+                            <i class="fas fa-exchange-alt"></i> Migrate from config.json
+                        </button>
+                        <div id="migrationResult" style="margin-top: 12px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 24px;">
+                <h3 style="margin-bottom: 16px;"><i class="fas fa-list"></i> Stored Secrets</h3>
+                <div id="kmsSecretsList">
+                    <div style="text-align: center; color: var(--text-muted); padding: 40px;">
+                        <i class="fas fa-lock" style="font-size: 48px; margin-bottom: 12px; opacity: 0.3;"></i>
+                        <p>No secrets loaded. Initialize KMS to view.</p>
                     </div>
                 </div>
             </div>
@@ -2664,6 +2932,9 @@ buyback"></textarea>
             if (page === 'dashboard') refreshStats();
             if (page === 'config') loadConfigFromStorage();
             if (page === 'usage') loadUsageData();
+            if (page === 'registry') loadAgentRegistry();
+            if (page === 'mcp') loadMCPData();
+            if (page === 'kms') loadKMSHealth();
         }
 
         // Config Tabs
@@ -3386,43 +3657,14 @@ buyback"></textarea>
 
                 currentMode = config.local_llm_mode || 'mock';
                 updateModeUI();
-
-                // Load KMS status
-                loadKMSStatus();
             } catch (e) {
                 console.error('Failed to load settings', e);
-            }
-        }
-
-        async function loadKMSStatus() {
-            const badge = document.getElementById('kmsStatusBadge');
-            const text = document.getElementById('kmsStatusText');
-            try {
-                const res = await fetch(`${API_URL}/api/kms/status`);
-                const kms = await res.json();
-                if (kms.available) {
-                    badge.style.background = '#e8f5e9';
-                    badge.style.borderColor = '#4caf50';
-                    badge.querySelector('i').style.color = '#4caf50';
-                    text.innerHTML = `<b>KMS Active</b> - ${kms.provider} (${kms.secrets_count} keys stored securely)`;
-                } else {
-                    badge.style.background = '#fff3e0';
-                    badge.style.borderColor = '#ff9800';
-                    badge.querySelector('i').style.color = '#ff9800';
-                    text.innerHTML = `<b>KMS Unavailable</b> - Keys stored in config file`;
-                }
-            } catch (e) {
-                badge.style.background = '#ffebee';
-                badge.style.borderColor = '#f44336';
-                badge.querySelector('i').style.color = '#f44336';
-                text.innerHTML = `<b>KMS Error</b> - Could not check status`;
             }
         }
 
         async function saveProviderKey() {
             const provider = document.getElementById('settingProvider').value;
             const apiKey = document.getElementById('settingAPIKey').value;
-            const resultEl = document.getElementById('saveKeyResult');
 
             if (!apiKey) {
                 showToast('Please enter an API key', 'error');
@@ -3434,7 +3676,7 @@ buyback"></textarea>
                     method: 'POST'
                 });
 
-                const updateRes = await fetch(`${API_URL}/api/providers/update`, {
+                await fetch(`${API_URL}/api/providers/update`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -3443,20 +3685,11 @@ buyback"></textarea>
                         enabled: true
                     })
                 });
-                const result = await updateRes.json();
 
-                if (result.kms_stored) {
-                    showToast(`${provider} key stored securely in KMS`, 'success');
-                    resultEl.innerHTML = '<i class="fas fa-shield-alt" style="color: #4caf50;"></i> Key encrypted and stored in KMS';
-                } else {
-                    showToast(`${provider} configured (stored in config)`, 'success');
-                    resultEl.innerHTML = '<i class="fas fa-file-alt" style="color: #ff9800;"></i> Key stored in config file';
-                }
+                showToast(`${provider} configured and set as active provider`, 'success');
                 document.getElementById('settingAPIKey').value = '';
-                loadKMSStatus();
             } catch (e) {
                 showToast('Failed to save provider configuration', 'error');
-                resultEl.innerHTML = '';
             }
         }
 
@@ -3556,6 +3789,443 @@ buyback"></textarea>
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
+
+        // ==================== ENTERPRISE FEATURES ====================
+
+        // Agent Registry Functions
+        async function loadAgentRegistry() {
+            try {
+                const response = await fetch(`${API_URL}/api/registry/agents`);
+                if (!response.ok) {
+                    throw new Error('Enterprise features not available');
+                }
+                const agents = await response.json();
+
+                // Update stats
+                const approved = agents.filter(a => a.status === 'approved').length;
+                const pending = agents.filter(a => a.status === 'pending').length;
+                const blocked = agents.filter(a => a.status === 'blocked').length;
+
+                document.getElementById('registryApproved').textContent = approved;
+                document.getElementById('registryPending').textContent = pending;
+                document.getElementById('registryBlocked').textContent = blocked;
+                document.getElementById('registryTotal').textContent = agents.length;
+
+                // Render table
+                const tbody = document.getElementById('agentRegistryTable');
+                if (agents.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No agents registered</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = agents.map(agent => {
+                    const statusClass = {
+                        'approved': 'success',
+                        'pending': 'warning',
+                        'blocked': 'danger',
+                        'deprecated': 'muted'
+                    }[agent.status] || 'muted';
+
+                    const riskClass = {
+                        'low': 'success',
+                        'medium': 'warning',
+                        'high': 'danger',
+                        'critical': 'danger'
+                    }[agent.risk_level] || 'muted';
+
+                    const permissions = (agent.permissions || []).slice(0, 3).join(', ');
+
+                    return `
+                        <tr>
+                            <td><strong>${agent.name}</strong><br><small style="color: var(--text-muted);">${agent.id}</small></td>
+                            <td>${agent.provider}</td>
+                            <td><code>${agent.model_id}</code></td>
+                            <td><span class="status-badge ${statusClass}">${agent.status}</span></td>
+                            <td><span class="status-badge ${riskClass}">${agent.risk_level}</span></td>
+                            <td><small>${permissions || 'None'}</small></td>
+                            <td>
+                                ${agent.status === 'pending' ? `
+                                    <button class="btn-icon success" onclick="approveAgent('${agent.id}')" title="Approve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                ` : ''}
+                                ${agent.status !== 'blocked' ? `
+                                    <button class="btn-icon danger" onclick="blockAgent('${agent.id}')" title="Block">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                ` : `
+                                    <button class="btn-icon success" onclick="approveAgent('${agent.id}')" title="Unblock">
+                                        <i class="fas fa-unlock"></i>
+                                    </button>
+                                `}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Failed to load agent registry:', e);
+                document.getElementById('agentRegistryTable').innerHTML = `
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">
+                        <i class="fas fa-info-circle"></i> Enterprise features require main_enterprise.py
+                    </td></tr>`;
+            }
+        }
+
+        async function approveAgent(agentId) {
+            try {
+                const response = await fetch(`${API_URL}/api/registry/agents/${agentId}/approve`, {
+                    method: 'POST'
+                });
+                if (response.ok) {
+                    showToast('Agent approved successfully', 'success');
+                    loadAgentRegistry();
+                } else {
+                    showToast('Failed to approve agent', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function blockAgent(agentId) {
+            const reason = prompt('Reason for blocking (optional):');
+            try {
+                const response = await fetch(`${API_URL}/api/registry/agents/${agentId}/block`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason: reason || 'Blocked by admin' })
+                });
+                if (response.ok) {
+                    showToast('Agent blocked', 'success');
+                    loadAgentRegistry();
+                } else {
+                    showToast('Failed to block agent', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        function showAddAgentModal() {
+            const name = prompt('Agent Name:');
+            if (!name) return;
+
+            const provider = prompt('Provider (e.g., openai, anthropic, azure_openai):');
+            if (!provider) return;
+
+            const modelId = prompt('Model ID (e.g., gpt-4o, claude-3-opus):');
+            if (!modelId) return;
+
+            registerNewAgent(name, provider, modelId);
+        }
+
+        async function registerNewAgent(name, provider, modelId) {
+            try {
+                const response = await fetch(`${API_URL}/api/registry/agents`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name,
+                        provider: provider,
+                        model_id: modelId,
+                        risk_level: 'medium',
+                        permissions: ['chat.basic']
+                    })
+                });
+                if (response.ok) {
+                    showToast('Agent registered (pending approval)', 'success');
+                    loadAgentRegistry();
+                } else {
+                    const data = await response.json();
+                    showToast(data.error || 'Failed to register agent', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        // MCP Gateway Functions
+        async function loadMCPData() {
+            await Promise.all([
+                loadMCPTools(),
+                loadMCPAccessLog(),
+                loadMCPPendingApprovals()
+            ]);
+        }
+
+        async function loadMCPTools() {
+            try {
+                const response = await fetch(`${API_URL}/api/mcp/tools`);
+                if (!response.ok) throw new Error('MCP not available');
+
+                const tools = await response.json();
+
+                // Update stats
+                const activeTools = tools.filter(t => t.status === 'active').length;
+                document.getElementById('mcpToolsActive').textContent = activeTools;
+
+                // Render table
+                const tbody = document.getElementById('mcpToolsTable');
+                if (tools.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No tools configured</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = tools.map(tool => {
+                    const classificationColors = {
+                        'public': 'success',
+                        'internal': 'info',
+                        'confidential': 'warning',
+                        'restricted': 'danger',
+                        'upsi': 'danger'
+                    };
+                    const classColor = classificationColors[tool.data_classification] || 'muted';
+
+                    return `
+                        <tr>
+                            <td><strong>${tool.name}</strong></td>
+                            <td>${tool.category}</td>
+                            <td><span class="status-badge ${classColor}">${tool.data_classification.toUpperCase()}</span></td>
+                            <td><span class="status-badge ${tool.status === 'active' ? 'success' : 'muted'}">${tool.status}</span></td>
+                            <td>${tool.requires_approval ? '<i class="fas fa-check-circle" style="color: var(--warning);"></i> Required' : 'No'}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Failed to load MCP tools:', e);
+                document.getElementById('mcpToolsTable').innerHTML = `
+                    <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">
+                        <i class="fas fa-info-circle"></i> MCP Gateway requires main_enterprise.py
+                    </td></tr>`;
+            }
+        }
+
+        async function loadMCPAccessLog() {
+            try {
+                const response = await fetch(`${API_URL}/api/mcp/access-log?limit=20`);
+                if (!response.ok) return;
+
+                const logs = await response.json();
+
+                // Count allowed/denied
+                const allowed = logs.filter(l => l.decision === 'ALLOW' || l.decision === 'ALLOW_RESTRICTED').length;
+                const denied = logs.filter(l => l.decision === 'DENY' || l.decision === 'RATE_LIMITED').length;
+
+                document.getElementById('mcpAccessAllowed').textContent = allowed;
+                document.getElementById('mcpAccessDenied').textContent = denied;
+
+                const tbody = document.getElementById('mcpAccessLogTable');
+                if (logs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No access logs yet</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = logs.map(log => {
+                    const decisionClass = {
+                        'ALLOW': 'success',
+                        'ALLOW_RESTRICTED': 'warning',
+                        'DENY': 'danger',
+                        'RATE_LIMITED': 'warning',
+                        'PENDING_APPROVAL': 'info'
+                    }[log.decision] || 'muted';
+
+                    const time = new Date(log.timestamp).toLocaleString();
+
+                    return `
+                        <tr>
+                            <td><small>${time}</small></td>
+                            <td>${log.agent_id}</td>
+                            <td>${log.tool_id}</td>
+                            <td>${log.operation}</td>
+                            <td><span class="status-badge ${decisionClass}">${log.decision}</span></td>
+                            <td>${log.user_id}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Failed to load access log:', e);
+            }
+        }
+
+        async function loadMCPPendingApprovals() {
+            try {
+                const response = await fetch(`${API_URL}/api/mcp/pending-approvals`);
+                if (!response.ok) return;
+
+                const pending = await response.json();
+                document.getElementById('mcpPendingApprovals').textContent = pending.length;
+
+                const container = document.getElementById('mcpPendingList');
+                if (pending.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 40px;">No pending approvals</div>';
+                    return;
+                }
+
+                container.innerHTML = pending.map(p => `
+                    <div class="approval-item" style="padding: 12px; border: 1px solid var(--border-light); border-radius: 8px; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${p.agent_id}</strong> wants to access <strong>${p.tool_id}</strong>
+                                <br><small style="color: var(--text-muted);">Operation: ${p.operation} | User: ${p.user_id}</small>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-sm success" onclick="approveMCPRequest('${p.request_id}')">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                                <button class="btn btn-sm danger" onclick="denyMCPRequest('${p.request_id}')">
+                                    <i class="fas fa-times"></i> Deny
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to load pending approvals:', e);
+            }
+        }
+
+        async function approveMCPRequest(requestId) {
+            try {
+                const response = await fetch(`${API_URL}/api/mcp/approve/${requestId}`, { method: 'POST' });
+                if (response.ok) {
+                    showToast('Access approved', 'success');
+                    loadMCPData();
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function denyMCPRequest(requestId) {
+            try {
+                const response = await fetch(`${API_URL}/api/mcp/deny/${requestId}`, { method: 'POST' });
+                if (response.ok) {
+                    showToast('Access denied', 'success');
+                    loadMCPData();
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        // KMS Functions
+        document.getElementById('kmsProviderSelect')?.addEventListener('change', function() {
+            const provider = this.value;
+            document.getElementById('kmsVaultUrlRow').style.display = (provider === 'azure' || provider === 'hashicorp') ? 'flex' : 'none';
+            document.getElementById('kmsRegionRow').style.display = provider === 'aws' ? 'flex' : 'none';
+        });
+
+        async function loadKMSHealth() {
+            try {
+                const response = await fetch(`${API_URL}/api/kms/health`);
+                if (!response.ok) throw new Error('KMS not available');
+
+                const health = await response.json();
+
+                const statusEl = document.getElementById('kmsStatus');
+                const iconEl = document.getElementById('kmsStatusIcon');
+
+                if (health.status === 'healthy') {
+                    statusEl.textContent = 'Healthy';
+                    statusEl.style.color = 'var(--success)';
+                    iconEl.style.background = 'var(--gradient-4)';
+                } else if (health.status === 'not_initialized') {
+                    statusEl.textContent = 'Not Init';
+                    statusEl.style.color = 'var(--warning)';
+                    iconEl.style.background = 'var(--gradient-2)';
+                } else {
+                    statusEl.textContent = 'Error';
+                    statusEl.style.color = 'var(--danger)';
+                    iconEl.style.background = 'var(--gradient-2)';
+                }
+
+                document.getElementById('kmsProvider').textContent = health.provider || '--';
+                document.getElementById('kmsSecretsCount').textContent = health.secrets_count || 0;
+
+                // Load secrets list if available
+                if (health.providers && health.providers.length > 0) {
+                    const listEl = document.getElementById('kmsSecretsList');
+                    listEl.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                            ${health.providers.map(p => `
+                                <div style="padding: 16px; background: var(--bg-light); border-radius: 8px; border: 1px solid var(--border-light);">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-key" style="color: var(--mo-blue);"></i>
+                                        <strong>${p}</strong>
+                                    </div>
+                                    <small style="color: var(--text-muted);">API Key stored</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                console.error('Failed to load KMS health:', e);
+                document.getElementById('kmsStatus').textContent = 'N/A';
+                document.getElementById('kmsProvider').textContent = '--';
+            }
+        }
+
+        async function initializeKMS() {
+            const provider = document.getElementById('kmsProviderSelect').value;
+            const vaultUrl = document.getElementById('kmsVaultUrl')?.value;
+            const region = document.getElementById('kmsRegion')?.value;
+
+            try {
+                const response = await fetch(`${API_URL}/api/kms/init`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider, vault_url: vaultUrl, region })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showToast(`KMS initialized with ${provider}`, 'success');
+                    loadKMSHealth();
+                } else {
+                    showToast(result.error || 'Failed to initialize KMS', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function migrateToVault() {
+            const btn = document.getElementById('migrateBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Migrating...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/kms/migrate`, { method: 'POST' });
+                const result = await response.json();
+
+                const resultEl = document.getElementById('migrationResult');
+
+                if (result.success) {
+                    resultEl.innerHTML = `
+                        <div style="padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; color: var(--success);">
+                            <i class="fas fa-check-circle"></i> Migration complete!<br>
+                            <small>${result.migrated} keys migrated, ${result.skipped} skipped</small>
+                        </div>
+                    `;
+                    showToast('Migration completed', 'success');
+                    loadKMSHealth();
+                } else {
+                    resultEl.innerHTML = `
+                        <div style="padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; color: var(--danger);">
+                            <i class="fas fa-exclamation-circle"></i> ${result.error}
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-exchange-alt"></i> Migrate from config.json';
+            }
+        }
+
+        // ==================== END ENTERPRISE FEATURES ====================
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
