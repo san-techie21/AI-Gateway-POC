@@ -159,6 +159,11 @@
             background: rgba(255,255,255,0.3);
         }
 
+        .badge-danger { background: var(--danger) !important; color: white; }
+        .badge-warning { background: var(--warning) !important; color: white; }
+        .badge-success { background: var(--success) !important; color: white; }
+        .badge-info { background: var(--mo-blue) !important; color: white; }
+
         .sidebar-footer {
             margin-top: auto;
             padding: 16px;
@@ -1520,6 +1525,10 @@
             <div class="nav-item" data-page="kms">
                 <i class="fas fa-key"></i>
                 <span>Secrets/KMS</span>
+            </div>
+            <div class="nav-item" data-page="redteam">
+                <i class="fas fa-skull-crossbones"></i>
+                <span>Red Team</span>
             </div>
         </nav>
 
@@ -2901,6 +2910,162 @@ buyback"></textarea>
                 </div>
             </div>
         </section>
+
+        <!-- Red Team Page -->
+        <section class="page-section" id="page-redteam">
+            <div class="header">
+                <div>
+                    <h1 class="page-title">AI Red Team Scanner</h1>
+                    <p class="page-subtitle">Automated adversarial security testing for AI systems</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="loadRedTeamData()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="showNewScanModal()">
+                        <i class="fas fa-crosshairs"></i> New Scan
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-row" style="margin-bottom: 24px;">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--gradient-1);"><i class="fas fa-bullseye"></i></div>
+                    </div>
+                    <div class="stat-value" id="rtTotalScans">0</div>
+                    <div class="stat-label">Total Scans</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--gradient-2);"><i class="fas fa-bug"></i></div>
+                    </div>
+                    <div class="stat-value" id="rtTotalVulns">0</div>
+                    <div class="stat-label">Vulnerabilities Found</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);"><i class="fas fa-exclamation-triangle"></i></div>
+                    </div>
+                    <div class="stat-value" id="rtCriticalCount">0</div>
+                    <div class="stat-label">Critical Issues</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon" style="background: var(--gradient-4);"><i class="fas fa-chart-line"></i></div>
+                    </div>
+                    <div class="stat-value" id="rtAvgRisk">0</div>
+                    <div class="stat-label">Avg Risk Score</div>
+                </div>
+            </div>
+
+            <div class="settings-grid">
+                <div class="card">
+                    <h3 style="margin-bottom: 16px;"><i class="fas fa-play-circle"></i> Quick Scan</h3>
+                    <div class="setting-group">
+                        <div class="setting-row">
+                            <span class="setting-label">Target URL</span>
+                            <input type="text" class="setting-input" id="rtTargetUrl" placeholder="https://api.example.com/v1/chat/completions">
+                        </div>
+                        <div class="setting-row">
+                            <span class="setting-label">Provider</span>
+                            <select class="setting-input" id="rtProvider">
+                                <option value="openai">OpenAI</option>
+                                <option value="claude">Claude</option>
+                                <option value="gemini">Gemini</option>
+                                <option value="ai_gateway">AI Gateway</option>
+                            </select>
+                        </div>
+                        <div class="setting-row">
+                            <span class="setting-label">Model</span>
+                            <input type="text" class="setting-input" id="rtModel" value="gpt-4o-mini">
+                        </div>
+                        <div class="setting-row">
+                            <span class="setting-label">API Key</span>
+                            <input type="password" class="setting-input" id="rtApiKey" placeholder="Enter API key for target">
+                        </div>
+                        <div class="setting-row">
+                            <span class="setting-label">Attack Categories</span>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                                <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                                    <input type="checkbox" name="rtCategory" value="prompt_injection" checked> Prompt Injection
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                                    <input type="checkbox" name="rtCategory" value="jailbreak" checked> Jailbreak
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                                    <input type="checkbox" name="rtCategory" value="data_leakage" checked> Data Leakage
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                                    <input type="checkbox" name="rtCategory" value="pii_extraction" checked> PII Extraction
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                                    <input type="checkbox" name="rtCategory" value="harmful_content" checked> Harmful Content
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                                    <input type="checkbox" name="rtCategory" value="hallucination"> Hallucination
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                                    <input type="checkbox" name="rtCategory" value="bias_testing"> Bias Testing
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 4px; font-size: 12px;">
+                                    <input type="checkbox" name="rtCategory" value="denial_of_service"> DoS
+                                </label>
+                            </div>
+                        </div>
+                        <div class="setting-row">
+                            <span class="setting-label">Max Attacks</span>
+                            <input type="number" class="setting-input" id="rtMaxAttacks" value="25" min="1" max="100">
+                        </div>
+                        <button class="btn btn-primary" onclick="startRedTeamScan()" id="rtStartScanBtn" style="margin-top: 12px; width: 100%;">
+                            <i class="fas fa-play"></i> Start Scan
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 16px;">
+                        <i class="fas fa-shield-virus"></i> Attack Library
+                        <span id="rtTotalAttacks" style="font-size: 14px; background: var(--mo-blue); color: white; padding: 4px 10px; border-radius: 12px; margin-left: 8px;">0</span>
+                    </h3>
+                    <div id="rtAttackLibrary" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="text-align: center; color: var(--text-muted); padding: 20px;">
+                            <i class="fas fa-bomb" style="font-size: 32px; margin-bottom: 8px; opacity: 0.3;"></i>
+                            <p>Loading attack library...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 24px;">
+                <h3 style="margin-bottom: 16px;"><i class="fas fa-history"></i> Recent Scans</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Scan ID</th>
+                                <th>Target</th>
+                                <th>Status</th>
+                                <th>Vulns</th>
+                                <th>Risk Level</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rtScansBody">
+                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No scans yet. Start a new scan above.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 24px; display: none;" id="rtResultsCard">
+                <h3 style="margin-bottom: 16px;"><i class="fas fa-file-alt"></i> Scan Results</h3>
+                <div id="rtScanResults">
+                    <!-- Scan results will be loaded here -->
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Toast Container -->
@@ -2935,6 +3100,7 @@ buyback"></textarea>
             if (page === 'registry') loadAgentRegistry();
             if (page === 'mcp') loadMCPData();
             if (page === 'kms') loadKMSHealth();
+            if (page === 'redteam') loadRedTeamData();
         }
 
         // Config Tabs
@@ -4222,6 +4388,424 @@ buyback"></textarea>
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-exchange-alt"></i> Migrate from config.json';
+            }
+        }
+
+        // ==================== RED TEAM FUNCTIONS ====================
+
+        let rtActiveScanId = null;
+        let rtScanPollingInterval = null;
+
+        async function loadRedTeamData() {
+            await Promise.all([
+                loadRedTeamStats(),
+                loadAttackLibrary(),
+                loadRecentScans()
+            ]);
+        }
+
+        async function loadRedTeamStats() {
+            try {
+                const response = await fetch(`${API_URL}/api/redteam/stats`);
+                if (!response.ok) throw new Error('Red Team not available');
+
+                const stats = await response.json();
+                document.getElementById('rtTotalScans').textContent = stats.total_scans || 0;
+                document.getElementById('rtTotalVulns').textContent = stats.total_vulnerabilities || 0;
+                document.getElementById('rtCriticalCount').textContent = stats.critical_vulnerabilities || 0;
+                document.getElementById('rtAvgRisk').textContent = stats.avg_risk_score ? stats.avg_risk_score.toFixed(1) : '0.0';
+            } catch (e) {
+                console.error('Failed to load red team stats:', e);
+                document.getElementById('rtTotalScans').textContent = '--';
+                document.getElementById('rtTotalVulns').textContent = '--';
+                document.getElementById('rtCriticalCount').textContent = '--';
+                document.getElementById('rtAvgRisk').textContent = '--';
+            }
+        }
+
+        async function loadAttackLibrary() {
+            try {
+                const response = await fetch(`${API_URL}/api/redteam/attacks`);
+                if (!response.ok) throw new Error('Failed to load attacks');
+
+                const library = await response.json();
+                const container = document.getElementById('rtAttackLibrary');
+
+                if (!library.categories || Object.keys(library.categories).length === 0) {
+                    container.innerHTML = '<div style="color: var(--text-muted);">No attack categories available</div>';
+                    return;
+                }
+
+                container.innerHTML = Object.entries(library.categories).map(([cat, count]) => `
+                    <div style="padding: 10px 16px; background: var(--bg-light); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>${cat.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
+                        <span class="badge" style="background: var(--mo-blue); color: white;">${count}</span>
+                    </div>
+                `).join('');
+
+                // Update total attacks count
+                document.getElementById('rtTotalAttacks').textContent = library.total_attacks || 0;
+            } catch (e) {
+                console.error('Failed to load attack library:', e);
+                document.getElementById('rtAttackLibrary').innerHTML = '<div style="color: var(--danger);">Error loading attack library</div>';
+            }
+        }
+
+        async function loadRecentScans() {
+            try {
+                const response = await fetch(`${API_URL}/api/redteam/scans?limit=10`);
+                if (!response.ok) throw new Error('Failed to load scans');
+
+                const data = await response.json();
+                const scans = data.scans || data;
+                const tbody = document.getElementById('rtScansBody');
+
+                if (!scans || scans.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                                No scans yet. Start your first security scan!
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = scans.map(scan => {
+                    const riskBadgeClass = getRiskBadgeClass(scan.summary?.risk_level || 'UNKNOWN');
+                    const statusBadgeClass = getStatusBadgeClass(scan.status);
+                    return `
+                        <tr>
+                            <td><code>${scan.scan_id}</code></td>
+                            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${scan.target_url}</td>
+                            <td><span class="badge ${statusBadgeClass}">${scan.status}</span></td>
+                            <td>${scan.vulnerabilities_found || 0}</td>
+                            <td><span class="badge ${riskBadgeClass}">${scan.summary?.risk_level || 'N/A'}</span></td>
+                            <td>${formatDateTime(scan.started_at)}</td>
+                            <td>
+                                <button class="btn btn-sm" onclick="viewScanResults('${scan.scan_id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm" onclick="downloadReport('${scan.scan_id}')" title="Download Report">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn btn-sm danger" onclick="deleteScan('${scan.scan_id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Failed to load scans:', e);
+            }
+        }
+
+        function getRiskBadgeClass(level) {
+            switch(level) {
+                case 'CRITICAL': return 'badge-danger';
+                case 'HIGH': return 'badge-warning';
+                case 'MEDIUM': return 'badge-info';
+                case 'LOW': return 'badge-success';
+                default: return '';
+            }
+        }
+
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'completed': return 'badge-success';
+                case 'running': return 'badge-info';
+                case 'failed': return 'badge-danger';
+                default: return '';
+            }
+        }
+
+        function formatDateTime(isoString) {
+            if (!isoString) return '--';
+            const date = new Date(isoString);
+            return date.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+        }
+
+        async function startRedTeamScan() {
+            const targetUrl = document.getElementById('rtTargetUrl').value.trim();
+            const provider = document.getElementById('rtProvider').value;
+            const model = document.getElementById('rtModel').value;
+
+            // Get selected categories
+            const categoryCheckboxes = document.querySelectorAll('input[name="rtCategory"]:checked');
+            const categories = Array.from(categoryCheckboxes).map(cb => cb.value);
+
+            if (!targetUrl) {
+                showToast('Please enter a target URL', 'error');
+                return;
+            }
+
+            if (categories.length === 0) {
+                showToast('Please select at least one attack category', 'error');
+                return;
+            }
+
+            const startBtn = document.getElementById('rtStartScanBtn');
+            startBtn.disabled = true;
+            startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting Scan...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/redteam/scan`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        target_url: targetUrl,
+                        provider: provider,
+                        model: model,
+                        categories: categories,
+                        max_attacks: 30
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.scan_id) {
+                    rtActiveScanId = result.scan_id;
+                    showToast(`Scan started: ${result.scan_id}`, 'success');
+
+                    // Start polling for status
+                    startScanPolling(result.scan_id);
+
+                    // Show results area
+                    document.getElementById('rtResultsCard').style.display = 'block';
+                    document.getElementById('rtScanResults').innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: var(--mo-blue);"></i>
+                            <p style="margin-top: 16px; color: var(--text-muted);">
+                                Scan in progress...<br>
+                                <small>ID: ${result.scan_id}</small>
+                            </p>
+                            <div id="rtScanProgress" style="margin-top: 16px;">
+                                <div style="width: 300px; height: 8px; background: var(--bg-dark); border-radius: 4px; margin: 0 auto;">
+                                    <div id="rtProgressBar" style="width: 0%; height: 100%; background: var(--gradient-1); border-radius: 4px; transition: width 0.3s;"></div>
+                                </div>
+                                <small id="rtProgressText" style="color: var(--text-muted);">0%</small>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    showToast(result.error || 'Failed to start scan', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            } finally {
+                startBtn.disabled = false;
+                startBtn.innerHTML = '<i class="fas fa-play"></i> Start Scan';
+            }
+        }
+
+        function startScanPolling(scanId) {
+            if (rtScanPollingInterval) {
+                clearInterval(rtScanPollingInterval);
+            }
+
+            rtScanPollingInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_URL}/api/redteam/scan/${scanId}`);
+                    const scan = await response.json();
+
+                    if (!scan || scan.error) {
+                        clearInterval(rtScanPollingInterval);
+                        return;
+                    }
+
+                    // Update progress
+                    const progress = scan.total_attacks > 0
+                        ? Math.round((scan.completed_attacks / scan.total_attacks) * 100)
+                        : 0;
+
+                    const progressBar = document.getElementById('rtProgressBar');
+                    const progressText = document.getElementById('rtProgressText');
+
+                    if (progressBar) progressBar.style.width = `${progress}%`;
+                    if (progressText) progressText.textContent = `${scan.completed_attacks}/${scan.total_attacks} attacks (${progress}%)`;
+
+                    if (scan.status === 'completed' || scan.status === 'failed') {
+                        clearInterval(rtScanPollingInterval);
+                        rtScanPollingInterval = null;
+
+                        // Refresh data and show results
+                        await loadRedTeamData();
+                        await viewScanResults(scanId);
+
+                        showToast(
+                            scan.status === 'completed'
+                                ? `Scan completed! Found ${scan.vulnerabilities_found} vulnerabilities`
+                                : 'Scan failed',
+                            scan.status === 'completed' ? 'success' : 'error'
+                        );
+                    }
+                } catch (e) {
+                    console.error('Polling error:', e);
+                }
+            }, 2000);
+        }
+
+        async function viewScanResults(scanId) {
+            try {
+                const response = await fetch(`${API_URL}/api/redteam/scan/${scanId}`);
+                if (!response.ok) throw new Error('Failed to load scan');
+
+                const scan = await response.json();
+
+                document.getElementById('rtResultsCard').style.display = 'block';
+
+                const resultsHtml = `
+                    <div style="margin-bottom: 24px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                            <div style="padding: 16px; background: var(--bg-light); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: 700; color: var(--mo-blue);">${scan.total_attacks || 0}</div>
+                                <div style="color: var(--text-muted); font-size: 12px;">Total Attacks</div>
+                            </div>
+                            <div style="padding: 16px; background: var(--bg-light); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: 700; color: ${scan.vulnerabilities_found > 0 ? 'var(--danger)' : 'var(--success)'};">
+                                    ${scan.vulnerabilities_found || 0}
+                                </div>
+                                <div style="color: var(--text-muted); font-size: 12px;">Vulnerabilities</div>
+                            </div>
+                            <div style="padding: 16px; background: var(--bg-light); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: 700; color: var(--danger);">${scan.critical_count || 0}</div>
+                                <div style="color: var(--text-muted); font-size: 12px;">Critical</div>
+                            </div>
+                            <div style="padding: 16px; background: var(--bg-light); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: 700; color: var(--warning);">${scan.high_count || 0}</div>
+                                <div style="color: var(--text-muted); font-size: 12px;">High</div>
+                            </div>
+                            <div style="padding: 16px; background: var(--bg-light); border-radius: 8px; text-align: center;">
+                                <div style="font-size: 24px; font-weight: 700;">${scan.summary?.risk_score?.toFixed(1) || '0.0'}</div>
+                                <div style="color: var(--text-muted); font-size: 12px;">Risk Score</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${scan.recommendations && scan.recommendations.length > 0 ? `
+                        <div style="margin-bottom: 24px;">
+                            <h4 style="margin-bottom: 12px;"><i class="fas fa-shield-alt"></i> Recommendations</h4>
+                            <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); border-radius: 8px; padding: 16px;">
+                                ${scan.recommendations.map(r => `
+                                    <div style="padding: 8px 0; border-bottom: 1px solid var(--border-light);">
+                                        <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i> ${r}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${scan.attack_results && scan.attack_results.length > 0 ? `
+                        <div>
+                            <h4 style="margin-bottom: 12px;"><i class="fas fa-list"></i> Attack Results</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Attack</th>
+                                        <th>Category</th>
+                                        <th>Severity</th>
+                                        <th>Vulnerable</th>
+                                        <th>Score</th>
+                                        <th>Response Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${scan.attack_results.slice(0, 20).map(ar => `
+                                        <tr style="${ar.is_vulnerable ? 'background: rgba(239, 68, 68, 0.1);' : ''}">
+                                            <td title="${ar.attack_name}">${ar.attack_name?.substring(0, 30) || 'Unknown'}${ar.attack_name?.length > 30 ? '...' : ''}</td>
+                                            <td>${ar.category}</td>
+                                            <td><span class="badge ${getSeverityBadgeClass(ar.severity)}">${ar.severity}</span></td>
+                                            <td>
+                                                ${ar.is_vulnerable
+                                                    ? '<i class="fas fa-exclamation-circle" style="color: var(--danger);"></i> Yes'
+                                                    : '<i class="fas fa-check-circle" style="color: var(--success);"></i> No'}
+                                            </td>
+                                            <td>${(ar.vulnerability_score * 100).toFixed(0)}%</td>
+                                            <td>${ar.response_time_ms}ms</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                            ${scan.attack_results.length > 20 ? `
+                                <div style="text-align: center; padding: 16px; color: var(--text-muted);">
+                                    Showing 20 of ${scan.attack_results.length} results. Download report for full details.
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : '<div style="text-align: center; color: var(--text-muted); padding: 40px;">No attack results available</div>'}
+                `;
+
+                document.getElementById('rtScanResults').innerHTML = resultsHtml;
+
+                // Scroll to results
+                document.getElementById('rtResultsCard').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (e) {
+                showToast('Error loading scan results: ' + e.message, 'error');
+            }
+        }
+
+        function getSeverityBadgeClass(severity) {
+            switch(severity?.toLowerCase()) {
+                case 'critical': return 'badge-danger';
+                case 'high': return 'badge-warning';
+                case 'medium': return 'badge-info';
+                case 'low': return 'badge-success';
+                default: return '';
+            }
+        }
+
+        async function downloadReport(scanId) {
+            try {
+                const response = await fetch(`${API_URL}/api/redteam/reports/${scanId}?format=json`);
+                if (!response.ok) throw new Error('Failed to generate report');
+
+                const report = await response.json();
+
+                // Create downloadable JSON
+                const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `redteam_report_${scanId}_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showToast('Report downloaded', 'success');
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteScan(scanId) {
+            if (!confirm(`Delete scan ${scanId}? This cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/redteam/scan/${scanId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showToast('Scan deleted', 'success');
+                    await loadRecentScans();
+                    await loadRedTeamStats();
+
+                    // Hide results if we deleted the currently viewed scan
+                    if (rtActiveScanId === scanId) {
+                        document.getElementById('rtResultsCard').style.display = 'none';
+                        rtActiveScanId = null;
+                    }
+                } else {
+                    const result = await response.json();
+                    showToast(result.error || 'Failed to delete scan', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
             }
         }
 

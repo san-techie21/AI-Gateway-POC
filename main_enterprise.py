@@ -110,6 +110,24 @@ except ImportError as e:
     print(f"Warning: Telemetry module not available: {e}")
     TELEMETRY_AVAILABLE = False
 
+# Import Red Team module
+try:
+    from red_teaming import (
+        RedTeamScanner, ScanConfig, AttackLibrary, AttackCategory, AttackSeverity,
+        ResponseEvaluator, ReportGenerator, RedTeamDatabase
+    )
+    REDTEAM_AVAILABLE = True
+    red_team_scanner = RedTeamScanner()
+    red_team_db = RedTeamDatabase()
+    report_generator = ReportGenerator()
+    print("Red Team Module: Available")
+except ImportError as e:
+    print(f"Warning: Red Team module not available: {e}")
+    REDTEAM_AVAILABLE = False
+    red_team_scanner = None
+    red_team_db = None
+    report_generator = None
+
 # ============== APP SETUP ==============
 
 app = FastAPI(
@@ -1203,9 +1221,199 @@ async def health_check():
             "agent_registry": REGISTRY_AVAILABLE,
             "mcp_gateway": MCP_AVAILABLE,
             "telemetry": TELEMETRY_AVAILABLE,
-            "auth": AUTH_MODULES_AVAILABLE
+            "auth": AUTH_MODULES_AVAILABLE,
+            "red_team": REDTEAM_AVAILABLE
         }
     }
+
+# ============== RED TEAM ENDPOINTS ==============
+
+class RedTeamScanRequest(BaseModel):
+    """Request model for red team scan."""
+    target_url: str
+    api_key: Optional[str] = None
+    provider: str = "openai"
+    model: str = "gpt-4o-mini"
+    categories: Optional[List[str]] = None
+    max_attacks: int = 50
+    timeout_seconds: int = 30
+    concurrent_requests: int = 3
+
+@app.post("/api/redteam/scan")
+async def start_redteam_scan(request: RedTeamScanRequest):
+    """Start a new red team security scan."""
+    if not REDTEAM_AVAILABLE:
+        return JSONResponse(status_code=503, content={"error": "Red Team module not available"})
+
+    try:
+        # Parse categories
+        categories = []
+        if request.categories:
+            for cat in request.categories:
+                try:
+                    categories.append(AttackCategory(cat))
+                except ValueError:
+                    pass
+        if not categories:
+            categories = list(AttackCategory)
+
+        # Create scan config
+        config = ScanConfig(
+            target_url=request.target_url,
+            api_key=request.api_key,
+            provider=request.provider,
+            model=request.model,
+            categories=categories,
+            max_attacks=request.max_attacks,
+            timeout_seconds=request.timeout_seconds,
+            concurrent_requests=request.concurrent_requests
+        )
+
+        # Run scan asynchronously
+        result = await red_team_scanner.run_scan(config)
+
+        # Save to database
+        red_team_db.save_scan(result)
+
+        return {
+            "success": True,
+            "scan_id": result.scan_id,
+            "status": result.status.value,
+            "total_attacks": result.total_attacks,
+            "completed_attacks": result.completed_attacks,
+            "vulnerabilities_found": result.vulnerabilities_found,
+            "summary": result.summary
+        }
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+@app.get("/api/redteam/scan/{scan_id}")
+async def get_redteam_scan(scan_id: str):
+    """Get red team scan results."""
+    if not REDTEAM_AVAILABLE:
+        return JSONResponse(status_code=503, content={"error": "Red Team module not available"})
+
+    scan = red_team_db.get_scan(scan_id)
+    if not scan:
+        return JSONResponse(status_code=404, content={"error": "Scan not found"})
+
+    return scan
+
+@app.get("/api/redteam/scans")
+async def list_redteam_scans(
+    target_url: Optional[str] = None,
+    status: Optional[str] = None,
+    limit: int = 50,
+    offset: int = 0
+):
+    """List all red team scans."""
+    if not REDTEAM_AVAILABLE:
+        return JSONResponse(status_code=503, content={"error": "Red Team module not available"})
+
+    scans = red_team_db.list_scans(target_url=target_url, status=status, limit=limit, offset=offset)
+    return {"scans": scans, "count": len(scans)}
+
+@app.get("/api/redteam/attacks")
+async def get_attack_library():
+    """Get available attack vectors."""
+    if not REDTEAM_AVAILABLE:
+        return JSONResponse(status_code=503, content={"error": "Red Team module not available"})
+
+    summary = red_team_scanner.get_attack_library_summary()
+    return summary
+
+@app.get("/api/redteam/reports/{scan_id}")
+async def get_redteam_report(scan_id: str, format: str = "json"):
+    """Get security report for a scan."""
+    if not REDTEAM_AVAILABLE:
+        return JSONResponse(status_code=503, content={"error": "Red Team module not available"})
+
+    scan = red_team_db.get_scan(scan_id)
+    if not scan:
+        return JSONResponse(status_code=404, content={"error": "Scan not found"})
+
+    # Convert scan dict back to ScanResult for report generation
+    from red_teaming.scanner import ScanResult, ScanStatus, AttackResult
+
+    attack_results = []
+    for ar in scan.get("attack_results", []):
+        attack_results.append(AttackResult(
+            attack_id=ar["attack_id"],
+            attack_name=ar["attack_name"],
+            category=ar["category"],
+            severity=ar["severity"],
+            prompt=ar["prompt"],
+            response=ar["response"],
+            response_time_ms=ar["response_time_ms"],
+            is_vulnerable=ar["is_vulnerable"],
+            vulnerability_score=ar["vulnerability_score"],
+            matched_indicators=ar.get("matched_indicators", []),
+            error=ar.get("error"),
+            timestamp=ar["timestamp"]
+        ))
+
+    scan_result = ScanResult(
+        scan_id=scan["scan_id"],
+        target_url=scan["target_url"],
+        provider=scan["provider"],
+        model=scan["model"],
+        status=ScanStatus(scan["status"]),
+        started_at=scan["started_at"],
+        completed_at=scan["completed_at"],
+        total_attacks=scan["total_attacks"],
+        completed_attacks=scan["completed_attacks"],
+        vulnerabilities_found=scan["vulnerabilities_found"],
+        critical_count=scan["critical_count"],
+        high_count=scan["high_count"],
+        medium_count=scan["medium_count"],
+        low_count=scan["low_count"],
+        attack_results=attack_results,
+        summary=scan.get("summary", {}),
+        recommendations=scan.get("recommendations", [])
+    )
+
+    # Generate report
+    report = report_generator.generate_report(scan_result)
+
+    if format == "html":
+        html_content = report.to_html()
+        return HTMLResponse(content=html_content)
+    else:
+        return report.to_json()
+
+@app.get("/api/redteam/stats")
+async def get_redteam_stats(target_url: Optional[str] = None):
+    """Get red team scan statistics."""
+    if not REDTEAM_AVAILABLE:
+        return JSONResponse(status_code=503, content={"error": "Red Team module not available"})
+
+    stats = red_team_db.get_scan_statistics(target_url)
+    return stats
+
+@app.get("/api/redteam/trends")
+async def get_redteam_trends(target_url: Optional[str] = None, days: int = 30):
+    """Get vulnerability trends over time."""
+    if not REDTEAM_AVAILABLE:
+        return JSONResponse(status_code=503, content={"error": "Red Team module not available"})
+
+    trends = red_team_db.get_vulnerability_trends(target_url, days)
+    return trends
+
+@app.delete("/api/redteam/scan/{scan_id}")
+async def delete_redteam_scan(scan_id: str):
+    """Delete a red team scan."""
+    if not REDTEAM_AVAILABLE:
+        return JSONResponse(status_code=503, content={"error": "Red Team module not available"})
+
+    success = red_team_db.delete_scan(scan_id)
+    if success:
+        return {"success": True, "message": f"Scan {scan_id} deleted"}
+    else:
+        return JSONResponse(status_code=500, content={"error": "Failed to delete scan"})
 
 # ============== RUN SERVER ==============
 
